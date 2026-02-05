@@ -1,26 +1,33 @@
-# Start from the official Fedora Silverblue 41 image
 FROM quay.io/fedora/fedora-silverblue:41
 
-# 1. Install Host System Packages
+# 1. Install Host Tools (Including Distrobox, Docker, fzf, and nautilus-python)
 RUN rpm-ostree install \
-    vulkan-tools mangohud nvtop gnome-tweaks git kitty nautilus-python && \
+    vulkan-tools mangohud nvtop gnome-tweaks git kitty \
+    nautilus-python fzf distrobox moby-engine docker-compose && \
     rpm-ostree cleanup -m
 
-# 2. Add Flathub and Install Apps
+# 2. Install Flatpaks (FIXED: TradingView ID corrected)
 RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && \
     flatpak install -y flathub \
-    com.spotify.Client app.zen_browser.zen com.usebottles.bottles \
-    com.tradingview.TradingView org.videolan.VLC org.onlyoffice.desktopeditors \
-    dev.zed.Zed com.github.tchx84.Flatseal com.mattjakeman.ExtensionManager \
-    com.valvesoftware.Steam org.gnome.DejaDup com.discordapp.Discord
+    com.spotify.Client \
+    app.zen_browser.zen \
+    com.usebottles.bottles \
+    com.tradingview.Desktop \
+    org.videolan.VLC \
+    org.onlyoffice.desktopeditors \
+    dev.zed.Zed \
+    com.github.tchx84.Flatseal \
+    com.mattjakeman.ExtensionManager \
+    com.valvesoftware.Steam \
+    org.gnome.DejaDup \
+    com.discordapp.Discord
 
-# 3. FIX: Set Kitty as Default & Hide Old Terminals
-# This hides GNOME Console/Ptyxis from your app menu so only Kitty shows up
-RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || echo "NoDisplay=true" >> /usr/share/applications/org.gnome.Console.desktop && \
-    sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Ptyxis.desktop || echo "NoDisplay=true" >> /usr/share/applications/org.gnome.Ptyxis.desktop
+# 3. AUTOMATION: Default Terminal (Kitty) & IDE (Zed) & File Handler
+RUN mkdir -p /etc/xdg/autostart && \
+    echo "[Desktop Entry]\nType=Application\nName=Setup Defaults\nExec=sh -c \"gsettings set org.gnome.desktop.default-applications.terminal exec 'kitty'; xdg-mime default dev.zed.Zed.desktop text/plain; xdg-mime default dev.zed.Zed.desktop inode/directory\"\nNoDisplay=true\nX-GNOME-Autostart-enabled=true" > /etc/xdg/autostart/set-defaults.desktop
 
-# Force GSettings to prefer Kitty (System-wide default)
-RUN mkdir -p /usr/share/glib-2.0/schemas/ && \
-    echo '[org.gnome.desktop.default-applications.terminal]' > /usr/share/glib-2.0/schemas/99-kitty-default.gschema.override && \
-    echo 'exec="kitty"' >> /usr/share/glib-2.0/schemas/99-kitty-default.gschema.override && \
-    glib-compile-schemas /usr/share/glib-2.0/schemas/
+# 4. Docker Group Setup
+RUN groupadd -f docker
+
+# 5. Hide the old GNOME Console icon
+RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || echo "NoDisplay=true" >> /usr/share/applications/org.gnome.Console.desktop
