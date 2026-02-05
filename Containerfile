@@ -3,7 +3,7 @@ FROM quay.io/fedora/fedora-silverblue:43
 # 0. Disable broken Fedora 43 updates-archive repo
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
-# 1. Install Host Tools (Using dnf for container builds)
+# 1. Install Host Tools
 RUN dnf install -y \
     vulkan-tools mangohud nvtop gnome-tweaks git kitty \
     nautilus-python fzf distrobox moby-engine docker-compose && \
@@ -12,32 +12,30 @@ RUN dnf install -y \
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Automation Script (Fixed Heredoc Syntax)
-RUN cat <<-'EOF' > /usr/bin/auto-setup-apps
-#!/bin/bash
-if [ ! -f "$HOME/.flatpak-setup-done" ]; then
-  flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-  flatpak install --user -y flathub \
-    com.spotify.Client \
-    app.zen_browser.zen \
-    com.usebottles.bottles \
-    org.videolan.VLC \
-    org.onlyoffice.desktopeditors \
-    dev.zed.Zed \
-    com.github.tchx84.Flatseal \
-    com.mattjakeman.ExtensionManager \
-    com.valvesoftware.Steam \
-    org.gnome.DejaDup \
-    com.discordapp.Discord
-  xdg-mime default dev.zed.Zed.desktop text/plain
-  xdg-mime default dev.zed.Zed.desktop inode/directory
-  gsettings set org.gnome.desktop.default-applications.terminal exec "kitty"
-  mkdir -p "$HOME/.local/bin"
-  echo -e '#!/bin/bash\nflatpak run dev.zed.Zed "$@"' > "$HOME/.local/bin/zed"
-  chmod +x "$HOME/.local/bin/zed"
-  touch "$HOME/.flatpak-setup-done"
-fi
-EOF
+# 3. Automation Script (Using printf for universal compatibility)
+RUN printf '#!/bin/bash\n\
+if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
+  flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
+  flatpak install --user -y flathub \\\n\
+    com.spotify.Client \\\n\
+    app.zen_browser.zen \\\n\
+    com.usebottles.bottles \\\n\
+    org.videolan.VLC \\\n\
+    org.onlyoffice.desktopeditors \\\n\
+    dev.zed.Zed \\\n\
+    com.github.tchx84.Flatseal \\\n\
+    com.mattjakeman.ExtensionManager \\\n\
+    com.valvesoftware.Steam \\\n\
+    org.gnome.DejaDup \\\n\
+    com.discordapp.Discord\n\
+  xdg-mime default dev.zed.Zed.desktop text/plain\n\
+  xdg-mime default dev.zed.Zed.desktop inode/directory\n\
+  gsettings set org.gnome.desktop.default-applications.terminal exec "kitty"\n\
+  mkdir -p "$HOME/.local/bin"\n\
+  printf "#!/bin/bash\\nflatpak run dev.zed.Zed \\"\$@\\"" > "$HOME/.local/bin/zed"\n\
+  chmod +x "$HOME/.local/bin/zed"\n\
+  touch "$HOME/.flatpak-setup-done"\n\
+fi\n' > /usr/bin/auto-setup-apps
 
 # 4. Permissions and Autostart
 RUN chmod +x /usr/bin/auto-setup-apps && \
