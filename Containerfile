@@ -1,10 +1,11 @@
 FROM quay.io/fedora/fedora-silverblue:43
 
-# 0. Disable broken Fedora 43 updates-archive repo (rpm-ostree compatible)
+# 0. Disable broken Fedora 43 updates-archive repo
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
-# 1. Install Host Tools
-RUN rpm-ostree install \
+# 1. Install Host Tools 
+# FIX: Use dnf instead of rpm-ostree for building container layers
+RUN dnf install -y \
     vulkan-tools \
     mangohud \
     nvtop \
@@ -16,7 +17,7 @@ RUN rpm-ostree install \
     distrobox \
     moby-engine \
     docker-compose && \
-    rpm-ostree cleanup -m
+    dnf clean all
 
 # 2. Setup Docker Group
 RUN groupadd -f docker
@@ -24,10 +25,8 @@ RUN groupadd -f docker
 # 3. Automation Script (Flatpak user setup)
 RUN cat <<-'EOF' > /usr/bin/auto-setup-apps
 #!/bin/bash
-
 if [ ! -f "$HOME/.flatpak-setup-done" ]; then
   flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
   flatpak install --user -y flathub \
     com.spotify.Client \
     app.zen_browser.zen \
@@ -43,15 +42,12 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then
 
   xdg-mime default dev.zed.Zed.desktop text/plain
   xdg-mime default dev.zed.Zed.desktop inode/directory
-
   gsettings set org.gnome.desktop.default-applications.terminal exec "kitty"
 
   mkdir -p "$HOME/.local/bin"
   echo -e '#!/bin/bash\nflatpak run dev.zed.Zed "$@"' > "$HOME/.local/bin/zed"
   chmod +x "$HOME/.local/bin/zed"
-
   touch "$HOME/.flatpak-setup-done"
-  notify-send "Setup Complete" "Apps installed. Use 'z' or 'zed' to open Zed."
 fi
 EOF
 
