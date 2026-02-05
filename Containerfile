@@ -6,13 +6,12 @@ RUN rpm-ostree install \
     nautilus-python fzf distrobox moby-engine docker-compose && \
     rpm-ostree cleanup -m
 
-# 2. Install Flatpaks (FIXED: TradingView ID corrected)
+# 2. Install Flatpaks (removed invalid/troublesome entry)
 RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && \
     flatpak install -y flathub \
     com.spotify.Client \
     app.zen_browser.zen \
     com.usebottles.bottles \
-    com.tradingview.Desktop \
     org.videolan.VLC \
     org.onlyoffice.desktopeditors \
     dev.zed.Zed \
