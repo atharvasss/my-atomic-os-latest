@@ -3,16 +3,16 @@ FROM quay.io/fedora/fedora-silverblue:43
 # 0. Disable broken Fedora 43 updates-archive repo
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
-# 1. Install Host Tools
+# 1. Install Host Tools (Kitty removed)
 RUN dnf install -y \
-    vulkan-tools mangohud nvtop gnome-tweaks git kitty \
+    vulkan-tools mangohud nvtop gnome-tweaks git \
     nautilus-python fzf distrobox moby-engine docker-compose && \
     dnf clean all
 
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Automation Script (Using printf for universal compatibility)
+# 3. Automation Script (Flatpak logic)
 RUN printf '#!/bin/bash\n\
 if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
@@ -30,7 +30,6 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
     com.discordapp.Discord\n\
   xdg-mime default dev.zed.Zed.desktop text/plain\n\
   xdg-mime default dev.zed.Zed.desktop inode/directory\n\
-  gsettings set org.gnome.desktop.default-applications.terminal exec "kitty"\n\
   mkdir -p "$HOME/.local/bin"\n\
   printf "#!/bin/bash\\nflatpak run dev.zed.Zed \\"\$@\\"" > "$HOME/.local/bin/zed"\n\
   chmod +x "$HOME/.local/bin/zed"\n\
@@ -44,6 +43,7 @@ RUN chmod +x /usr/bin/auto-setup-apps && \
     > /etc/xdg/autostart/flatpak-check.desktop
 
 # 5. UI Cleanup & Aliases
+# Note: Using /etc/bashrc is good for global aliases on Silverblue custom images
 RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || true && \
     echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
     echo 'alias clean="flatpak uninstall --unused -y"' >> /etc/bashrc
