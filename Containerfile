@@ -1,8 +1,10 @@
 FROM quay.io/fedora/fedora-silverblue:43
 
-# 1. Install Host Tools (disable broken updates-archive repo)
+# 0. Disable broken Fedora 43 updates-archive repo (rpm-ostree compatible)
+RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
+
+# 1. Install Host Tools
 RUN rpm-ostree install \
-    --disable-repo=updates-archive \
     vulkan-tools \
     mangohud \
     nvtop \
