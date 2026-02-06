@@ -2,7 +2,7 @@
 
 **Performance. Stability. Automation.**
 
-Atomic OS is a customized, immutable Fedora Silverblue 43 image designed to eliminate setup time. It delivers a "just works" experience for developers and gamers by automating application deployment and system optimization.
+Atomic OS is a customized, immutable Fedora Silverblue 43 image designed to eliminate setup time. It delivers a "just works" experience for developers and gamers by automating application deployment, system optimization, and environment configuration.
 
 ---
 
@@ -10,7 +10,7 @@ Atomic OS is a customized, immutable Fedora Silverblue 43 image designed to elim
 
 #### 1. Switch to this Image
 
-If you are already on Fedora Silverblue, run the following to rebase:
+If you are already on Fedora Silverblue, run the following to rebase to this image:
 
 ```bash
 rpm-ostree rebase ostree-unverified-registry:ghcr.io/atharvasss/my-atomic-os-latest:latest
@@ -33,40 +33,31 @@ podman build -t my-atomic-os .
 
 ---
 
-### 🎮 Gaming Support
+### 🎮 Gaming & Graphics
 
-Atomic OS comes pre-configured with a "Game-Ready" stack, reducing the friction usually found in immutable systems.
+Atomic OS is pre-tuned for a high-performance gaming experience out of the box.
 
-* **Pre-installed Hubs:** Steam, Heroic Games Launcher (Epic/GOG), and Bottles are ready out of the box.
-* **Performance Overlays:** Includes `mangohud` for real-time FPS and hardware monitoring.
-* **System Tweaks:** * **GameMode:** Integrated `gamemode` to request CPU/GPU priority during play.
-* **Kernel Optimizations:** Pre-applied `split_lock_detect=off` kernel argument to prevent stutters/crashes in heavy titles and anti-cheat software.
-* **Latency Reduction:** Tweaked `zram` and `swappiness` levels for better memory management under heavy loads.
-
-
+* **Vulkan Ready:** Includes `vulkan-tools` and `steam-devices` (udev rules) pre-installed on the host.
+* **Performance Monitoring:** `nvtop` for GPU tracking and `mangohud` for in-game overlays.
+* **Gaming Suite:** Steam and Bottles are automatically deployed as Flatpaks on your first login.
 
 ---
 
-### 🛠️ Post-Install Commands
+### 🛠️ Custom Commands & Workflow
 
-Once you reboot into Atomic OS, the system handles the heavy lifting. Here is how to interact with it:
+This image includes built-in automation and shortcuts to keep your workflow fast.
 
 **System Maintenance**
 
-* `rpm-ostree upgrade`: Check for system-level updates.
-* `clean`: Removes unused Flatpak runtimes and data.
-* `auto-setup-apps`: Force-run the automated app installer (Spotify, Steam, etc.).
+* `clean`: Alias to remove unused Flatpak runtimes and data.
+* `rpm-ostree upgrade`: Check for system-level atomic updates.
+* `auto-setup-apps`: The logic that triggers the automated Flatpak installation (run manually if needed).
 
 **Developer Workflow**
 
 * `z`: Opens the current directory in **Zed Editor**.
-* `distrobox create -n dev`: Create a mutable development container.
-* `docker-compose up -d`: Launch your local stack immediately.
-
-**Performance Monitoring**
-
-* `nvtop`: Check your GPU usage and temps.
-* `mangohud <game>`: Launch games with the performance overlay (e.g., `mangohud steam`).
+* `distrobox create -n dev`: Create a mutable development container for your specific language needs.
+* `docker-compose up -d`: Native Docker support via `moby-engine`.
 
 ---
 
@@ -74,8 +65,19 @@ Once you reboot into Atomic OS, the system handles the heavy lifting. Here is ho
 
 | Category | Features |
 | --- | --- |
-| **System** | Fedora Silverblue 43 (Immutable), GNOME Tweaks |
-| **Tools** | Git, fzf, Moby-Engine (Docker), Distrobox |
-| **Apps** | Zen Browser, Zed, Discord, Spotify, Steam, Bottles |
-| **Gaming** | MangoHud, GameMode, Proton-GE (via auto-setup) |
-| **Fixes** | Automated Fedora updates-archive repair, Non-free Codecs |
+| **OS Core** | Fedora Silverblue 43 (Immutable), GNOME Tweaks |
+| **Host Tools** | Git, fzf, Moby-Engine (Docker), Docker-Compose, Distrobox |
+| **Gaming** | Steam, Bottles, MangoHud, nvtop, Vulkan-Tools |
+| **Flatpaks** | Zen Browser, Zed, Discord, Spotify, VLC, OnlyOffice, Flatseal |
+| **Optimizations** | Automated setup script, `updates-archive` repair, Console UI cleanup |
+
+---
+
+### 💡 How the Automation Works
+
+Upon your first login after rebasing, a background script (`auto-setup-apps`) will trigger. It:
+
+1. Adds the Flathub repository to your user space.
+2. Installs the curated list of productivity and gaming apps.
+3. Sets **Zed** as your default text and folder handler.
+4. Creates a persistent `zed` binary in your local path.
