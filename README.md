@@ -1,5 +1,3 @@
----
-
 # ⚛️ ATOMIC OS
 
 **Performance. Stability. Automation.**
@@ -67,4 +65,3 @@ Once you reboot into Atomic OS, the system handles the heavy lifting. Here is ho
 | **Apps** | Zen Browser, Zed, Discord, Spotify, Steam, Bottles |
 | **Fixes** | Automated Fedora updates-archive repair |
 
----
