@@ -38,7 +38,7 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
     org.gnome.DejaDup \\\n\
     com.discordapp.Discord\n\
   xdg-mime default dev.zed.Zed.desktop text/plain\n\
-  xdg-mime default dev.zed.Zed.desktop inode/directory\n\
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory\n\
   mkdir -p "$HOME/.local/bin"\n\
   printf "#!/bin/bash\\nflatpak run dev.zed.Zed \\"\$@\\"" > "$HOME/.local/bin/zed"\n\
   chmod +x "$HOME/.local/bin/zed"\n\
