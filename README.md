@@ -33,6 +33,20 @@ podman build -t my-atomic-os .
 
 ---
 
+### 🎮 Gaming Support
+
+Atomic OS comes pre-configured with a "Game-Ready" stack, reducing the friction usually found in immutable systems.
+
+* **Pre-installed Hubs:** Steam, Heroic Games Launcher (Epic/GOG), and Bottles are ready out of the box.
+* **Performance Overlays:** Includes `mangohud` for real-time FPS and hardware monitoring.
+* **System Tweaks:** * **GameMode:** Integrated `gamemode` to request CPU/GPU priority during play.
+* **Kernel Optimizations:** Pre-applied `split_lock_detect=off` kernel argument to prevent stutters/crashes in heavy titles and anti-cheat software.
+* **Latency Reduction:** Tweaked `zram` and `swappiness` levels for better memory management under heavy loads.
+
+
+
+---
+
 ### 🛠️ Post-Install Commands
 
 Once you reboot into Atomic OS, the system handles the heavy lifting. Here is how to interact with it:
@@ -52,7 +66,7 @@ Once you reboot into Atomic OS, the system handles the heavy lifting. Here is ho
 **Performance Monitoring**
 
 * `nvtop`: Check your GPU usage and temps.
-* `mangohud <game>``: Launch games with the performance overlay.
+* `mangohud <game>`: Launch games with the performance overlay (e.g., `mangohud steam`).
 
 ---
 
@@ -63,5 +77,5 @@ Once you reboot into Atomic OS, the system handles the heavy lifting. Here is ho
 | **System** | Fedora Silverblue 43 (Immutable), GNOME Tweaks |
 | **Tools** | Git, fzf, Moby-Engine (Docker), Distrobox |
 | **Apps** | Zen Browser, Zed, Discord, Spotify, Steam, Bottles |
-| **Fixes** | Automated Fedora updates-archive repair |
-
+| **Gaming** | MangoHud, GameMode, Proton-GE (via auto-setup) |
+| **Fixes** | Automated Fedora updates-archive repair, Non-free Codecs |
