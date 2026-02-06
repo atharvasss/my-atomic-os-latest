@@ -28,7 +28,6 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   flatpak install --user -y flathub \\\n\
     com.spotify.Client \\\n\
     app.zen_browser.zen \\\n\
-    com.usebottles.bottles \\\n\
     org.videolan.VLC \\\n\
     org.onlyoffice.desktopeditors \\\n\
     dev.zed.Zed \\\n\
