@@ -1,5 +1,3 @@
-This version integrates the technical "how-to" directly into the minimalist layout. It covers everything from the initial build to the daily-driver commands.
-
 ---
 
 # ⚛️ ATOMIC OS
