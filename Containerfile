@@ -37,9 +37,9 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
     com.valvesoftware.Steam \\\n\
     org.gnome.DejaDup \\\n\
     com.discordapp.Discord\n\
-  xdg-mime default dev.zed.Zed.desktop text/plain\n\
-  xdg-mime default org.gnome.Nautilus.desktop inode/directory\n\
-  xdg-settings set default-web-browser app.zen_browser.zen.desktop\n\
+  xdg-mime default dev.zed.Zed.desktop text/plain
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory
+  xdg-settings set default-web-browser app.zen_browser.zen.desktop
   mkdir -p "$HOME/.local/bin"\n\
   printf "#!/bin/bash\\nflatpak run dev.zed.Zed \\"\$@\\"" > "$HOME/.local/bin/zed"\n\
   chmod +x "$HOME/.local/bin/zed"\n\
