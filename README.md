@@ -1,50 +1,72 @@
-⚛️ ATOMIC OS
+This version integrates the technical "how-to" directly into the minimalist layout. It covers everything from the initial build to the daily-driver commands.
 
-Performance. Stability. Automation.
+---
+
+# ⚛️ ATOMIC OS
+
+**Performance. Stability. Automation.**
 
 Atomic OS is a customized, immutable Fedora Silverblue 43 image designed to eliminate setup time. It delivers a "just works" experience for developers and gamers by automating application deployment and system optimization.
-🚀 Quick Start
 
-Switch to Atomic OS instantly by running this command in your terminal:
-Bash
+---
 
+### 🚀 Deployment Guide
+
+#### 1. Switch to this Image
+
+If you are already on Fedora Silverblue, run the following to rebase:
+
+```bash
 rpm-ostree rebase ostree-unverified-registry:ghcr.io/atharvasss/my-atomic-os-latest:latest
 
-After the process completes, simply reboot to enter your new environment.
-🛠️ What’s Under the Hood?
+```
 
-Core Architecture
+#### 2. Local Build (For Developers)
 
-    Base: Fedora Silverblue 43 (Immutable)
+To customize and build this image locally using Podman:
 
-    Container Suite: Docker, Docker Compose, and Distrobox pre-installed.
+```bash
+# Clone the repo
+git clone https://github.com/atharvasss/my-atomic-os-latest.git
+cd my-atomic-os-latest
 
-    Tooling: Git, fzf, GNOME Tweaks, and Vulkan Tools.
+# Build the image
+podman build -t my-atomic-os .
 
-Automated App Deployment On your first login, the system automatically fetches your essential toolkit:
+```
 
-    Web: Zen Browser
+---
 
-    Dev: Zed Editor (Default), Bottles
+### 🛠️ Post-Install Commands
 
-    Social: Discord, Spotify
+Once you reboot into Atomic OS, the system handles the heavy lifting. Here is how to interact with it:
 
-    Gaming: Steam (with pre-configured drivers)
+**System Maintenance**
 
-Workflow Optimizations
+* `rpm-ostree upgrade`: Check for system-level updates.
+* `clean`: Removes unused Flatpak runtimes and data.
+* `auto-setup-apps`: Force-run the automated app installer (Spotify, Steam, etc.).
 
-    z: Instant shortcut to open directories in Zed.
+**Developer Workflow**
 
-    clean: One-word command to purge Flatpak bloat.
+* `z`: Opens the current directory in **Zed Editor**.
+* `distrobox create -n dev`: Create a mutable development container.
+* `docker-compose up -d`: Launch your local stack immediately.
 
-    UI: Legacy console hidden for a cleaner GNOME experience.
+**Performance Monitoring**
 
-🎮 Gaming & Performance
+* `nvtop`: Check your GPU usage and temps.
+* `mangohud <game>``: Launch games with the performance overlay.
 
-Built-in support for hardware monitoring and high-performance gaming:
+---
 
-    MangoHud: On-screen performance overlay.
+### 📦 Manifest
 
-    NVTop: Task monitor for NVIDIA, AMD, and Intel GPUs.
+| Category | Features |
+| --- | --- |
+| **System** | Fedora Silverblue 43 (Immutable), GNOME Tweaks |
+| **Tools** | Git, fzf, Moby-Engine (Docker), Distrobox |
+| **Apps** | Zen Browser, Zed, Discord, Spotify, Steam, Bottles |
+| **Fixes** | Automated Fedora updates-archive repair |
 
-    Steam Devices: Pre-configured permissions for controllers and peripherals.
+---
