@@ -6,7 +6,8 @@ RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.rep
 # 1. Install Host Tools (Kitty removed)
 RUN dnf install -y \
     vulkan-tools mangohud nvtop gnome-tweaks git \
-    nautilus-python fzf distrobox moby-engine docker-compose && \
+    nautilus-python fzf distrobox moby-engine docker-compose \
+    vim tmux && \
     dnf clean all
 
 # 2. Setup Docker Group
