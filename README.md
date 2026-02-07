@@ -31,16 +31,10 @@ rpm-ostree status
 
 Look for the dot (**●**) next to the `ghcr.io/atharvasss/my-atomic-os` entry.
 
-### 3️⃣ Setup Flatpak (for Apps)
-
-Atomic desktops work best when applications are installed via Flatpak rather than layered onto the system. Enable the Flathub repository for the best app selection:
-
-```bash
-flatpak remote-add --if-not-exists flathub [https://dl.flathub.org/repo/flathub.flatpakrepo](https://dl.flathub.org/repo/flathub.flatpakrepo)
 
 ```
 
-### 4️⃣ System Maintenance
+### 3️⃣ System Maintenance
 
 To keep your system and apps updated in the future, you only need one command:
 
