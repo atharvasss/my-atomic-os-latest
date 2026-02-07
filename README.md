@@ -153,7 +153,3 @@ Inside the Steam application:
 * **Immutable-friendly:** Keep the base image clean; prefer Flatpak installs.
 * **Development:** Use **Distrobox** for mutable development environments.
 * **Permissions:** Use **Flatseal** to manage Flatpak permissions.
-
-
-
-**Would you like me to add a section on how to automate these updates using a systemd timer?**.
