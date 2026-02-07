@@ -1,4 +1,3 @@
-
 # Fedora Silverblue Atomic Setup
 ## 🎮 Steam (Flatpak) + 💻 Desktop & Developer Configuration
 
@@ -31,13 +30,20 @@ rpm-ostree status
 
 Look for the dot (**●**) next to the `ghcr.io/atharvasss/my-atomic-os` entry.
 
-### 3️⃣ System Maintenance
+### 3️⃣ System Maintenance & Updates
 
-To keep your system and apps updated in the future, you only need one command:
+To keep your system and apps updated, use the following commands:
 
-* **Update everything:**
+* **Check for updates:**
 ```bash
-rpm-ostree upgrade
+rpm-ostree update   # Fetches the latest metadata and checks for available changes
+
+```
+
+
+* **Apply updates:**
+```bash
+rpm-ostree upgrade  # Downloads and prepares the new version of the image
 
 ```
 
@@ -99,11 +105,9 @@ On first login, a **one-time autostart script** runs per user to set up your env
 
 Available system-wide for convenience:
 
-```bash
 z       # Open Zed in current directory
 clean   # Remove unused Flatpaks and runtimes
 
-```
 
 ---
 
@@ -150,6 +154,8 @@ Inside the Steam application:
 * **Development:** Use **Distrobox** for mutable development environments.
 * **Permissions:** Use **Flatseal** to manage Flatpak permissions.
 
-```
+
+
+Would you like me to add a section on how to automate these updates using a systemd timer?
 
 ```
