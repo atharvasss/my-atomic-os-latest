@@ -1,137 +1,137 @@
+```markdown
 # Fedora Silverblue Atomic Setup
-## Steam (Flatpak) + Desktop & Developer Configuration
+## 🎮 Steam (Flatpak) + 💻 Desktop & Developer Configuration
 
-This repository provides a **Fedora Silverblue / Atomic** setup optimized for:
-
-- Immutable OS workflows (`rpm-ostree`)
-- Flatpak-first desktop applications
-- Steam (Flatpak only) with Proton
-- Docker / Distrobox development
-- Clean GNOME defaults and quality-of-life tweaks
+This repository provides a **Fedora Silverblue / Atomic** setup optimized for immutable workflows, high-performance gaming, and containerized development.
 
 ---
 
-## Base Image
+## 🚀 Post-Installation Setup
+
+Once you have installed Fedora Atomic Silverblue, follow these steps to switch to this custom image and optimize your setup.
+
+### 1️⃣ Rebase to this Image
+To switch your system from the default Fedora image to this custom build, run the following command in your terminal:
+
+```bash
+rpm-ostree rebase ostree-unverified-registry:ghcr.io/atharvasss/my-atomic-os:latest
+
+```
+
+> ⚠️ **Note:** After the process completes, restart your computer to boot into the new image.
+
+### 2️⃣ Verify the Installation
+
+After rebooting, verify that you are running the correct deployment:
+
+```bash
+rpm-ostree status
+
+```
+
+Look for the dot (**●**) next to the `ghcr.io/atharvasss/my-atomic-os` entry.
+
+### 3️⃣ Setup Flatpak (for Apps)
+
+Atomic desktops work best when applications are installed via Flatpak rather than layered onto the system. Enable the Flathub repository for the best app selection:
+
+```bash
+flatpak remote-add --if-not-exists flathub [https://dl.flathub.org/repo/flathub.flatpakrepo](https://dl.flathub.org/repo/flathub.flatpakrepo)
+
+```
+
+### 4️⃣ System Maintenance
+
+To keep your system and apps updated in the future, you only need one command:
+
+* **Update everything:**
+```bash
+rpm-ostree upgrade
+
+```
+
+
+* **Rollback if something breaks:** If an update causes issues, you can instantly revert to your previous working state:
+```bash
+rpm-ostree rollback
+
+```
+
+
+
+---
+
+## 🏗️ Base Image Details
 
 ```dockerfile
 FROM quay.io/fedora/fedora-silverblue:43
+
 ```
 
 This image disables the broken Fedora 43 updates-archive repo, installs host tools, sets up Docker, and includes a one-time automation script for Flatpak apps.
 
 ---
 
-## System Update (Required) 🔄
+## 🛠️ Layered System Packages
 
-After booting the image:
+Installed via `rpm-ostree` for deep system integration:
 
-```bash
-rpm-ostree upgrade
-systemctl reboot
-```
-
-Always reboot after an OSTree upgrade.
+* **Monitoring:** `nvtop` (GPU monitoring)
+* **UI/UX:** `gnome-tweaks`, `nautilus-python`
+* **Development:** `git`, `distrobox`, `moby-engine` (Docker), `docker-compose`
+* **CLI Tools:** `fzf`
 
 ---
 
-## Layered System Packages 🛠️
+## ⚡ Automatic First Login Setup
 
-Installed via `rpm-ostree`:
-
-- `nvtop` – GPU monitoring
-- `gnome-tweaks`
-- `git`
-- `nautilus-python`
-- `fzf`
-- `distrobox`
-- `moby-engine` (Docker)
-- `docker-compose`
-
-Docker group is created automatically.
-
----
-
-## Automatic First Login Setup 🚀
-
-On first login, a **one-time autostart script** runs per user.
+On first login, a **one-time autostart script** runs per user to set up your environment automatically.
 
 ### Flatpak Apps Installed Automatically
 
-- Spotify 🎵  
-- Zen Browser 🌐  
-- VLC 🎬  
-- ONLYOFFICE 📝  
-- Zed Editor ✏️  
-- Flatseal 🔧  
-- Extension Manager 🧩  
-- Déjà Dup 💾  
-- Discord 💬  
+* **Media:** Spotify 🎵, VLC 🎬
+* **Web:** Zen Browser 🌐
+* **Office/Dev:** ONLYOFFICE 📝, Zed Editor ✏️
+* **Utility:** Flatseal 🔧, Extension Manager 🧩, Déjà Dup 💾, Discord 💬
 
 ### Desktop Defaults
 
-- Default editor: **Zed**  
-- Default file manager: **Nautilus**  
-- Default web browser: **Zen Browser**  
-- Adds `zed` launcher to `~/.local/bin`  
+* **Default Editor:** Zed
+* **Default File Manager:** Nautilus
+* **Default Web Browser:** Zen Browser
+* **CLI:** Adds `zed` launcher to `~/.local/bin`
+* **Marker File:** Prevents re-running via `~/.flatpak-setup-done`
 
-Marker file prevents re-running:
+---
 
-```text
-~/.flatpak-setup-done
+## 🖥️ Global Shell Aliases
+
+Available system-wide for convenience:
+
+```bash
+z       # Open Zed in current directory
+clean   # Remove unused Flatpaks and runtimes
+
 ```
 
 ---
 
-## Global Shell Aliases 🖥️
+## 🎮 Steam Setup Guide (Flatpak)
 
-Available system-wide:
+> ⚠️ **Manual Steam Settings Required:** Some steps must be done manually inside Steam after installation. You will need to enable **Steam Play for all titles** and **Shader Pre-Caching**.
 
-```bash
-z        # Open Zed in current directory
-clean    # Remove unused Flatpaks
-```
+### 1️⃣ Install Steam & Runtimes
 
----
-
-# 🎮 Steam Setup Guide (Flatpak)
-
-> ⚠️ **Manual Steam Settings Required:** Some steps must be done manually inside Steam after installation.  
-> You will need to enable **Steam Play for all titles** and **Shader Pre-Caching**.
-
----
-
-### 1️⃣ Enable Flathub
+To fix SteamClient / Steamworks SDK errors, run this command:
 
 ```bash
-flatpak remote-add --if-not-exists flathub \
-https://flathub.org/repo/flathub.flatpakrepo
-```
-
----
-
-### 2️⃣ Install Steam
-
-```bash
-flatpak install -y flathub com.valvesoftware.Steam
-```
-
----
-
-### 3️⃣ Install Steam Runtimes and Proton ⚠️ (Manual Step)
-
-To fix SteamClient / Steamworks SDK errors, run **manually**:
-
-```bash
-flatpak install -y flathub \
+flatpak install -y flathub com.valvesoftware.Steam \
 com.valvesoftware.Steam.CompatibilityTool.SteamLinuxRuntime \
 com.valvesoftware.Steam.CompatibilityTool.Proton
+
 ```
 
-> ⚠️ Steam requires user approval for runtime installations and Proton versions.
-
----
-
-### 4️⃣ Set Flatpak Permissions for Steam 🔑
+### 2️⃣ Set Flatpak Permissions for Steam
 
 ```bash
 flatpak override --user \
@@ -140,43 +140,25 @@ flatpak override --user \
 --device=all \
 --share=network \
 com.valvesoftware.Steam
+
 ```
 
+### 3️⃣ Configure Steam Manually ⚙️
+
+Inside the Steam application:
+
+1. **Settings → Compatibility:** Enable *Steam Play for all titles*.
+2. **Settings → Shader Pre-Caching:** Enable.
+3. **Restart Steam.**
+
 ---
 
-### 5️⃣ Launch Steam
+## 📝 Notes & Workflow
 
-```bash
-flatpak run com.valvesoftware.Steam
+* **Immutable-friendly:** Keep the base image clean; prefer Flatpak installs.
+* **Development:** Use **Distrobox** for mutable development environments.
+* **Permissions:** Use **Flatseal** to manage Flatpak permissions.
+
 ```
 
----
-
-### 6️⃣ Configure Steam Manually ⚙️
-
-Inside Steam, do the following:
-
-1. **Settings → Compatibility**  
-   - Enable *Steam Play for all titles*  
-2. **Settings → Shader Pre-Caching**  
-   - Enable  
-
-Restart Steam after applying changes.
-
----
-
-## Notes 📝
-
-- Flatpak-first design  
-- Immutable-friendly configuration  
-- Minimal system layering  
-- Docker-ready for development  
-- Steam + Proton fully supported  
-
----
-
-## Recommended Workflow ✅
-
-- Use **Distrobox** for mutable development environments  
-- Use **Flatseal** to manage Flatpak permissions  
-- Keep the base image clean; prefer Flatpak installs
+```
