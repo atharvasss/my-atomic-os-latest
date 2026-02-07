@@ -31,11 +31,6 @@ rpm-ostree status
 
 Look for the dot (**●**) next to the `ghcr.io/atharvasss/my-atomic-os` entry.
 
-
-```
-
-```
-
 ### 3️⃣ System Maintenance
 
 To keep your system and apps updated in the future, you only need one command:
