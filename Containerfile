@@ -3,10 +3,8 @@ FROM quay.io/fedora/fedora-silverblue:43
 # 0. Disable broken Fedora 43 updates-archive repo
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
-# 1. Install Host Tools (Kitty removed)
+# 1. Install Host Tools 
 RUN rpm-ostree install \
-    vulkan-tools \
-    mangohud \
     nvtop \
     gnome-tweaks \
     git \
@@ -14,15 +12,28 @@ RUN rpm-ostree install \
     fzf \
     distrobox \
     moby-engine \
-    docker-compose \
-    steam-devices && \
+    docker-compose && \
     rpm-ostree cleanup -m
 
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Automation Script (Flatpak logic)
+# 2.5 Allow silent docker group assignment (Safety: Only allows adding user to docker group)
+RUN printf 'polkit.addRule(function(action, subject) {\n\
+    if (action.id == "org.freedesktop.policykit.exec" &&\n\
+        action.lookup("command_line") == "/usr/sbin/usermod -aG docker " + subject.user) {\n\
+        return polkit.Result.YES;\n\
+    }\n\
+});\n' > /etc/polkit-1/rules.d/40-docker-group.rules
+
+# 3. Automation Script
 RUN printf '#!/bin/bash\n\
+# --- START DOCKER PERMISSIONS --- \n\
+if ! groups "$(whoami)" | grep -q "\\bdocker\\b"; then
+  sudo usermod -aG docker "$(whoami)"
+fi\n\
+# --- END DOCKER PERMISSIONS --- \n\
+\n\
 if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
   flatpak install --user -y flathub \\\n\
@@ -33,7 +44,6 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
     dev.zed.Zed \\\n\
     com.github.tchx84.Flatseal \\\n\
     com.mattjakeman.ExtensionManager \\\n\
-    com.valvesoftware.Steam \\\n\
     org.gnome.DejaDup \\\n\
     com.discordapp.Discord\n\
   xdg-mime default dev.zed.Zed.desktop text/plain\n\
