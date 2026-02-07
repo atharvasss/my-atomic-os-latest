@@ -26,11 +26,10 @@ RUN printf 'polkit.addRule(function(action, subject) {\n\
     }\n\
 });\n' > /etc/polkit-1/rules.d/40-docker-group.rules
 
-# 3. Automation Script
+# 3. Automation Script (Complete and Fixed)
 RUN printf '#!/bin/bash\n\
-# --- START DOCKER PERMISSIONS --- \n\
-if ! groups "$(whoami)" | grep -q "\\bdocker\\b"; then
-  sudo usermod -aG docker "$(whoami)"
+if ! groups "$(whoami)" | grep -q "\\bdocker\\b"; then\n\
+  sudo usermod -aG docker "$(whoami)"\n\
 fi\n\
 # --- END DOCKER PERMISSIONS --- \n\
 \n\
