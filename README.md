@@ -1,4 +1,4 @@
-```markdown
+
 # Fedora Silverblue Atomic Setup
 ## 🎮 Steam (Flatpak) + 💻 Desktop & Developer Configuration
 
