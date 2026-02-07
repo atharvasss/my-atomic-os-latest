@@ -1,83 +1,182 @@
-# ⚛️ ATOMIC OS
+# Fedora Silverblue Atomic Setup
+## Steam (Flatpak) + Desktop & Developer Configuration
 
-**Performance. Stability. Automation.**
+This repository provides a **Fedora Silverblue / Atomic** setup optimized for:
 
-Atomic OS is a customized, immutable Fedora Silverblue 43 image designed to eliminate setup time. It delivers a "just works" experience for developers and gamers by automating application deployment, system optimization, and environment configuration.
+- Immutable OS workflows (`rpm-ostree`)
+- Flatpak-first desktop applications
+- Steam (Flatpak only) with Proton
+- Docker / Distrobox development
+- Clean GNOME defaults and quality-of-life tweaks
 
 ---
 
-### 🚀 Deployment Guide
+## Base Image
 
-#### 1. Switch to this Image
-
-If you are already on Fedora Silverblue, run the following to rebase to this image:
-
-```bash
-rpm-ostree rebase ostree-unverified-registry:ghcr.io/atharvasss/my-atomic-os-latest:latest
-
+```dockerfile
+FROM quay.io/fedora/fedora-silverblue:43
 ```
 
-#### 2. Local Build (For Developers)
+This image disables the broken Fedora 43 updates-archive repo, installs host tools, sets up Docker, and includes a one-time automation script for Flatpak apps.
 
-To customize and build this image locally using Podman:
+---
+
+## System Update (Required) 🔄
+
+After booting the image:
 
 ```bash
-# Clone the repo
-git clone https://github.com/atharvasss/my-atomic-os-latest.git
-cd my-atomic-os-latest
+rpm-ostree upgrade
+systemctl reboot
+```
 
-# Build the image
-podman build -t my-atomic-os .
+Always reboot after an OSTree upgrade.
 
+---
+
+## Layered System Packages 🛠️
+
+Installed via `rpm-ostree`:
+
+- `nvtop` – GPU monitoring
+- `gnome-tweaks`
+- `git`
+- `nautilus-python`
+- `fzf`
+- `distrobox`
+- `moby-engine` (Docker)
+- `docker-compose`
+
+Docker group is created automatically.
+
+---
+
+## Automatic First Login Setup 🚀
+
+On first login, a **one-time autostart script** runs per user.
+
+### Flatpak Apps Installed Automatically
+
+- Spotify 🎵  
+- Zen Browser 🌐  
+- VLC 🎬  
+- ONLYOFFICE 📝  
+- Zed Editor ✏️  
+- Flatseal 🔧  
+- Extension Manager 🧩  
+- Déjà Dup 💾  
+- Discord 💬  
+
+### Desktop Defaults
+
+- Default editor: **Zed**  
+- Default file manager: **Nautilus**  
+- Default web browser: **Zen Browser**  
+- Adds `zed` launcher to `~/.local/bin`  
+
+Marker file prevents re-running:
+
+```text
+~/.flatpak-setup-done
 ```
 
 ---
 
-### 🎮 Gaming & Graphics
+## Global Shell Aliases 🖥️
 
-Atomic OS is pre-tuned for a high-performance gaming experience out of the box.
+Available system-wide:
 
-* **Vulkan Ready:** Includes `vulkan-tools` and `steam-devices` (udev rules) pre-installed on the host.
-* **Performance Monitoring:** `nvtop` for GPU tracking and `mangohud` for in-game overlays.
-* **Gaming Suite:** Steam and Bottles are automatically deployed as Flatpaks on your first login.
-
----
-
-### 🛠️ Custom Commands & Workflow
-
-This image includes built-in automation and shortcuts to keep your workflow fast.
-
-**System Maintenance**
-
-* `clean`: Alias to remove unused Flatpak runtimes and data.
-* `rpm-ostree upgrade`: Check for system-level atomic updates.
-* `auto-setup-apps`: The logic that triggers the automated Flatpak installation (run manually if needed).
-
-**Developer Workflow**
-
-* `z`: Opens the current directory in **Zed Editor**.
-* `distrobox create -n dev`: Create a mutable development container for your specific language needs.
-* `docker-compose up -d`: Native Docker support via `moby-engine`.
+```bash
+z        # Open Zed in current directory
+clean    # Remove unused Flatpaks
+```
 
 ---
 
-### 📦 Manifest
+# 🎮 Steam Setup Guide (Flatpak)
 
-| Category | Features |
-| --- | --- |
-| **OS Core** | Fedora Silverblue 43 (Immutable), GNOME Tweaks |
-| **Host Tools** | Git, fzf, Moby-Engine (Docker), Docker-Compose, Distrobox |
-| **Gaming** | Steam, Bottles, MangoHud, nvtop, Vulkan-Tools |
-| **Flatpaks** | Zen Browser, Zed, Discord, Spotify, VLC, OnlyOffice, Flatseal |
-| **Optimizations** | Automated setup script, `updates-archive` repair, Console UI cleanup |
+> ⚠️ **Manual Steam Settings Required:** Some steps must be done manually inside Steam after installation.  
+> You will need to enable **Steam Play for all titles** and **Shader Pre-Caching**.
 
 ---
 
-### 💡 How the Automation Works
+### 1️⃣ Enable Flathub
 
-Upon your first login after rebasing, a background script (`auto-setup-apps`) will trigger. It:
+```bash
+flatpak remote-add --if-not-exists flathub \
+https://flathub.org/repo/flathub.flatpakrepo
+```
 
-1. Adds the Flathub repository to your user space.
-2. Installs the curated list of productivity and gaming apps.
-3. Sets **Zed** as your default text and folder handler.
-4. Creates a persistent `zed` binary in your local path.
+---
+
+### 2️⃣ Install Steam
+
+```bash
+flatpak install -y flathub com.valvesoftware.Steam
+```
+
+---
+
+### 3️⃣ Install Steam Runtimes and Proton ⚠️ (Manual Step)
+
+To fix SteamClient / Steamworks SDK errors, run **manually**:
+
+```bash
+flatpak install -y flathub \
+com.valvesoftware.Steam.CompatibilityTool.SteamLinuxRuntime \
+com.valvesoftware.Steam.CompatibilityTool.Proton
+```
+
+> ⚠️ Steam requires user approval for runtime installations and Proton versions.
+
+---
+
+### 4️⃣ Set Flatpak Permissions for Steam 🔑
+
+```bash
+flatpak override --user \
+--filesystem=home \
+--filesystem=xdg-data/Steam \
+--device=all \
+--share=network \
+com.valvesoftware.Steam
+```
+
+---
+
+### 5️⃣ Launch Steam
+
+```bash
+flatpak run com.valvesoftware.Steam
+```
+
+---
+
+### 6️⃣ Configure Steam Manually ⚙️
+
+Inside Steam, do the following:
+
+1. **Settings → Compatibility**  
+   - Enable *Steam Play for all titles*  
+2. **Settings → Shader Pre-Caching**  
+   - Enable  
+
+Restart Steam after applying changes.
+
+---
+
+## Notes 📝
+
+- Flatpak-first design  
+- Immutable-friendly configuration  
+- Minimal system layering  
+- Docker-ready for development  
+- Steam + Proton fully supported  
+
+---
+
+## Recommended Workflow ✅
+
+- Use **Distrobox** for mutable development environments  
+- Use **Flatseal** to manage Flatpak permissions  
+- Keep the base image clean; prefer Flatpak installs
