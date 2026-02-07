@@ -18,21 +18,15 @@ RUN rpm-ostree install \
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 2.5 Allow silent docker group assignment (Safety: Only allows adding user to docker group)
-RUN printf 'polkit.addRule(function(action, subject) {\n\
-    if (action.id == "org.freedesktop.policykit.exec" &&\n\
-        action.lookup("command_line") == "/usr/sbin/usermod -aG docker " + subject.user) {\n\
-        return polkit.Result.YES;\n\
-    }\n\
-});\n' > /etc/polkit-1/rules.d/40-docker-group.rules
-
 # 3. Automation Script (Complete and Fixed)
 RUN printf '#!/bin/bash\n\
+# --- Docker Group Check ---\n\
 if ! groups "$(whoami)" | grep -q "\\bdocker\\b"; then\n\
   sudo usermod -aG docker "$(whoami)"\n\
 fi\n\
 # --- END DOCKER PERMISSIONS --- \n\
 \n\
+# --- Flatpak Apps Setup ---\n\
 if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
   flatpak install --user -y flathub \\\n\
@@ -45,6 +39,7 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
     com.mattjakeman.ExtensionManager \\\n\
     org.gnome.DejaDup \\\n\
     com.discordapp.Discord\n\
+  # Set defaults\n\
   xdg-mime default dev.zed.Zed.desktop text/plain\n\
   xdg-mime default org.gnome.Nautilus.desktop inode/directory\n\
   xdg-settings set default-web-browser app.zen_browser.zen.desktop\n\
@@ -53,6 +48,8 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   chmod +x "$HOME/.local/bin/zed"\n\
   touch "$HOME/.flatpak-setup-done"\n\
 fi\n' > /usr/bin/auto-setup-apps
+
+RUN chmod +x /usr/bin/auto-setup-apps
 
 # 4. Permissions and Autostart
 RUN chmod +x /usr/bin/auto-setup-apps && \
