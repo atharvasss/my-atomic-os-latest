@@ -101,13 +101,16 @@ On first login, a **one-time autostart script** runs per user to set up your env
 
 ---
 
+
 ## 🖥️ Global Shell Aliases
 
 Available system-wide for convenience:
 
+```bash
 z       # Open Zed in current directory
 clean   # Remove unused Flatpaks and runtimes
 
+```
 
 ---
 
