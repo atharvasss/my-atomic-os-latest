@@ -156,6 +156,6 @@ Inside the Steam application:
 
 
 
-Would you like me to add a section on how to automate these updates using a systemd timer?
+**Would you like me to add a section on how to automate these updates using a systemd timer?**.
 
 ```
