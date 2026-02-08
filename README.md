@@ -1,4 +1,4 @@
-# 🧊 Fedora Silverblue Atomic Setup
+# ⚛️ Fedora Silverblue Atomic Setup
 
 ### 🎮 Steam (Flatpak) • 💻 Desktop • 🛠️ Developer Workflow
 
