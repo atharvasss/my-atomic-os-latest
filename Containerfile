@@ -5,7 +5,11 @@ RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.rep
 
 # 1. Install Host Tools 
 RUN rpm-ostree install \
+    htop \
+    btop \
     nvtop \
+    tmux \
+    bat \
     gnome-tweaks \
     git \
     nautilus-python \
@@ -62,3 +66,4 @@ RUN chmod +x /usr/bin/auto-setup-apps && \
 RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || true && \
     echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
     echo 'alias clean="flatpak uninstall --unused -y"' >> /etc/bashrc
+    echo 'alias cat="bat"' >> /etc/bashrc
