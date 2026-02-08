@@ -62,8 +62,8 @@ RUN chmod +x /usr/bin/auto-setup-apps && \
     > /etc/xdg/autostart/flatpak-check.desktop
 
 # 5. UI Cleanup & Aliases
-# Note: Using /etc/bashrc is good for global aliases on Silverblue custom images
 RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || true && \
     echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
-    echo 'alias clean="flatpak uninstall --unused -y"' >> /etc/bashrc
+    echo 'alias clean="flatpak uninstall --unused -y"' >> /etc/bashrc && \
     echo 'alias cat="bat"' >> /etc/bashrc
+
