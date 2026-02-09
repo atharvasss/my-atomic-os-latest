@@ -24,37 +24,46 @@ RUN rpm-ostree remove firefox || true && \
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Automation Script (Complete and Fixed)
-RUN printf '#!/bin/bash\n\
-# --- Docker Group Check ---\n\
-if ! groups "$(whoami)" | grep -q "\\bdocker\\b"; then\n\
-  sudo usermod -aG docker "$(whoami)"\n\
-fi\n\
-# --- END DOCKER PERMISSIONS --- \n\
-\n\
-# --- Flatpak Apps Setup ---\n\
-if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
-  flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
-  flatpak install --user -y flathub \\\n\
-    org.mozilla.firefox \\\n\
-    com.spotify.Client \\\n\
-    app.zen_browser.zen \\\n\
-    org.videolan.VLC \\\n\
-    org.onlyoffice.desktopeditors \\\n\
-    dev.zed.Zed \\\n\
-    com.github.tchx84.Flatseal \\\n\
-    com.mattjakeman.ExtensionManager \\\n\
-    org.gnome.DejaDup \\\n\
-    com.discordapp.Discord\n\
-  # Set defaults\n\
-  xdg-mime default dev.zed.Zed.desktop text/plain\n\
-  xdg-mime default org.gnome.Nautilus.desktop inode/directory\n\
+# 3. Automation Script (FIXED)
+RUN cat <<'EOF' > /usr/bin/auto-setup-apps
+#!/bin/bash
+
+# --- Docker Group Check ---
+if ! groups "$(whoami)" | grep -q '\bdocker\b'; then
+  sudo usermod -aG docker "$(whoami)"
+fi
+# --- END DOCKER PERMISSIONS ---
+
+# --- Flatpak Apps Setup ---
+if [ ! -f "$HOME/.flatpak-setup-done" ]; then
+  flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+  flatpak install --user -y flathub \
+    org.mozilla.firefox \
+    com.spotify.Client \
+    app.zen_browser.zen \
+    org.videolan.VLC \
+    org.onlyoffice.desktopeditors \
+    dev.zed.Zed \
+    com.github.tchx84.Flatseal \
+    com.mattjakeman.ExtensionManager \
+    org.gnome.DejaDup \
+    com.discordapp.Discord
+
+  # Defaults
+  xdg-mime default dev.zed.Zed.desktop text/plain
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory
   xdg-settings set default-web-browser org.mozilla.firefox.desktop
-  mkdir -p "$HOME/.local/bin"\n\
-  printf "#!/bin/bash\\nflatpak run dev.zed.Zed \\"\$@\\"" > "$HOME/.local/bin/zed"\n\
-  chmod +x "$HOME/.local/bin/zed"\n\
-  touch "$HOME/.flatpak-setup-done"\n\
-fi\n' > /usr/bin/auto-setup-apps
+
+  mkdir -p "$HOME/.local/bin"
+  echo '#!/bin/bash' > "$HOME/.local/bin/zed"
+  echo 'flatpak run dev.zed.Zed "$@"' >> "$HOME/.local/bin/zed"
+  chmod +x "$HOME/.local/bin/zed"
+
+  touch "$HOME/.flatpak-setup-done"
+fi
+EOF
+
 
 RUN chmod +x /usr/bin/auto-setup-apps
 
