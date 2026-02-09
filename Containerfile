@@ -23,33 +23,38 @@ RUN dnf remove -y firefox || true && \
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Create Automation Script (Fixed Formatting)
-RUN printf '%s\n' '#!/bin/bash' \
-    '' \
-    '# --- Docker Group Check ---' \
-    'if ! groups "$(whoami)" | grep -q "\bdocker\b"; then' \
-    '    sudo usermod -aG docker "$(whoami)"' \
-    'fi' \
-    '' \
-    '# --- Flatpak Apps Setup ---' \
-    'if [ ! -f "$HOME/.flatpak-setup-done" ]; then' \
-    '    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo' \
-    '    flatpak install --system -y --noninteractive flathub \' \
-    '        org.mozilla.firefox \' \
-    '        com.spotify.Client \' \
-    '        app.zen_browser.zen \' \
-    '        org.videolan.VLC \' \
-    '        org.onlyoffice.desktopeditors \' \
-    '        dev.zed.Zed \' \
-    '        com.github.tchx84.Flatseal \' \
-    '        com.mattjakeman.ExtensionManager \' \
-    '        org.gnome.DejaDup \' \
-    '        com.discordapp.Discord' \
-    '    xdg-mime default dev.zed.Zed.desktop text/plain' \
-    '    xdg-mime default org.gnome.Nautilus.desktop inode/directory' \
-    '    xdg-settings set default-web-browser org.mozilla.firefox.desktop' \
-    '    touch "$HOME/.flatpak-setup-done"' \
-    'fi' > /usr/bin/auto-setup-apps && chmod +x /usr/bin/auto-setup-apps
+RUN printf '%s\n' \
+'#!/bin/bash' \
+'' \
+'# --- Docker Group Check ---' \
+'if ! groups "$(whoami)" | grep -q "\bdocker\b"; then' \
+'    sudo usermod -aG docker "$(whoami)"' \
+'fi' \
+'' \
+'# --- Flatpak Apps Setup ---' \
+'if [ ! -f "$HOME/.flatpak-setup-done" ]; then' \
+'    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo' \
+'' \
+'    flatpak install --system -y --noninteractive flathub \' \
+'        org.mozilla.firefox \' \
+'        com.spotify.Client \' \
+'        app.zen_browser.zen \' \
+'        org.videolan.VLC \' \
+'        org.onlyoffice.desktopeditors \' \
+'        dev.zed.Zed \' \
+'        com.github.tchx84.Flatseal \' \
+'        com.mattjakeman.ExtensionManager \' \
+'        org.gnome.DejaDup \' \
+'        com.discordapp.Discord' \
+'' \
+'    xdg-mime default dev.zed.Zed.desktop text/plain' \
+'    xdg-mime default org.gnome.Nautilus.desktop inode/directory' \
+'    xdg-settings set default-web-browser org.mozilla.firefox.desktop' \
+'' \
+'    touch "$HOME/.flatpak-setup-done"' \
+'fi' \
+> /usr/bin/auto-setup-apps && chmod +x /usr/bin/auto-setup-apps
+
 
 # 4. Setup autostart and aliases safely (check if files exist before sed)
 RUN mkdir -p /etc/xdg/autostart && \
