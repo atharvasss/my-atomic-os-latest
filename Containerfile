@@ -4,8 +4,9 @@ FROM quay.io/fedora/fedora-silverblue:43
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
 # 1. Install Host Tools 
-RUN rpm-ostree remove firefox || true && \
-    rpm-ostree install \
+# 1. Install Host Tools (Fixed for container / Buildah)
+RUN dnf remove -y firefox || true && \
+    dnf install -y \
         htop \
         btop \
         nvtop \
@@ -18,60 +19,56 @@ RUN rpm-ostree remove firefox || true && \
         distrobox \
         moby-engine \
         docker-compose && \
-    rpm-ostree cleanup -m
+    dnf clean all
 
 
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Automation Script (FIXED)
+# 3. Automation Script (Fixed)
 RUN cat <<'EOF' > /usr/bin/auto-setup-apps
 #!/bin/bash
 
 # --- Docker Group Check ---
 if ! groups "$(whoami)" | grep -q '\bdocker\b'; then
-  sudo usermod -aG docker "$(whoami)"
+    sudo usermod -aG docker "$(whoami)"
 fi
-# --- END DOCKER PERMISSIONS ---
 
 # --- Flatpak Apps Setup ---
 if [ ! -f "$HOME/.flatpak-setup-done" ]; then
-  flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-  flatpak install --user -y flathub \
-    org.mozilla.firefox \
-    com.spotify.Client \
-    app.zen_browser.zen \
-    org.videolan.VLC \
-    org.onlyoffice.desktopeditors \
-    dev.zed.Zed \
-    com.github.tchx84.Flatseal \
-    com.mattjakeman.ExtensionManager \
-    org.gnome.DejaDup \
-    com.discordapp.Discord
+    flatpak install --user -y flathub \
+        org.mozilla.firefox \
+        com.spotify.Client \
+        app.zen_browser.zen \
+        org.videolan.VLC \
+        org.onlyoffice.desktopeditors \
+        dev.zed.Zed \
+        com.github.tchx84.Flatseal \
+        com.mattjakeman.ExtensionManager \
+        org.gnome.DejaDup \
+        com.discordapp.Discord
 
-  # Defaults
-  xdg-mime default dev.zed.Zed.desktop text/plain
-  xdg-mime default org.gnome.Nautilus.desktop inode/directory
-  xdg-settings set default-web-browser org.mozilla.firefox.desktop
+    xdg-mime default dev.zed.Zed.desktop text/plain
+    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+    xdg-settings set default-web-browser org.mozilla.firefox.desktop
 
-  mkdir -p "$HOME/.local/bin"
-  echo '#!/bin/bash' > "$HOME/.local/bin/zed"
-  echo 'flatpak run dev.zed.Zed "$@"' >> "$HOME/.local/bin/zed"
-  chmod +x "$HOME/.local/bin/zed"
-
-  touch "$HOME/.flatpak-setup-done"
+    touch "$HOME/.flatpak-setup-done"
 fi
 EOF
 
-
 RUN chmod +x /usr/bin/auto-setup-apps
 
-# 4. Permissions and Autostart
+# 4. Permissions, Autostart, and Firefox Flatpak Alias
 RUN chmod +x /usr/bin/auto-setup-apps && \
     mkdir -p /etc/xdg/autostart && \
     printf "[Desktop Entry]\nType=Application\nName=Flatpak Auto-Setup\nExec=/usr/bin/auto-setup-apps\nNoDisplay=true\nX-GNOME-Autostart-enabled=true\n" \
-    > /etc/xdg/autostart/flatpak-check.desktop
+    > /etc/xdg/autostart/flatpak-check.desktop && \
+    # Hide system Firefox launcher
+    sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/firefox.desktop || true && \
+    # Alias Firefox to Flatpak version
+    echo 'alias firefox="flatpak run org.mozilla.firefox"' >> /etc/bashrc
 
 # 5. UI Cleanup & Aliases
 RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || true && \
