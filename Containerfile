@@ -25,40 +25,34 @@ RUN dnf remove -y firefox || true && \
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-# 3. Automation Script (Fixed)
-RUN cat <<'EOF' > /usr/bin/auto-setup-apps
-#!/bin/bash
+# 3. Automation Script (Fixed for Buildah / Silverblue)
+RUN printf '#!/bin/bash\n\
+\n\
+# --- Docker Group Check ---\n\
+if ! groups "$(whoami)" | grep -q "\\bdocker\\b"; then\n\
+    sudo usermod -aG docker "$(whoami)"\n\
+fi\n\
+\n\
+# --- Flatpak Apps Setup ---\n\
+if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
+    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
+    flatpak install --user -y flathub \\\n\
+        org.mozilla.firefox \\\n\
+        com.spotify.Client \\\n\
+        app.zen_browser.zen \\\n\
+        org.videolan.VLC \\\n\
+        org.onlyoffice.desktopeditors \\\n\
+        dev.zed.Zed \\\n\
+        com.github.tchx84.Flatseal \\\n\
+        com.mattjakeman.ExtensionManager \\\n\
+        org.gnome.DejaDup \\\n\
+        com.discordapp.Discord\n\
+    xdg-mime default dev.zed.Zed.desktop text/plain\n\
+    xdg-mime default org.gnome.Nautilus.desktop inode/directory\n\
+    xdg-settings set default-web-browser org.mozilla.firefox.desktop\n\
+    touch "$HOME/.flatpak-setup-done"\n\
+fi\n' > /usr/bin/auto-setup-apps && chmod +x /usr/bin/auto-setup-apps
 
-# --- Docker Group Check ---
-if ! groups "$(whoami)" | grep -q '\bdocker\b'; then
-    sudo usermod -aG docker "$(whoami)"
-fi
-
-# --- Flatpak Apps Setup ---
-if [ ! -f "$HOME/.flatpak-setup-done" ]; then
-    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-    flatpak install --user -y flathub \
-        org.mozilla.firefox \
-        com.spotify.Client \
-        app.zen_browser.zen \
-        org.videolan.VLC \
-        org.onlyoffice.desktopeditors \
-        dev.zed.Zed \
-        com.github.tchx84.Flatseal \
-        com.mattjakeman.ExtensionManager \
-        org.gnome.DejaDup \
-        com.discordapp.Discord
-
-    xdg-mime default dev.zed.Zed.desktop text/plain
-    xdg-mime default org.gnome.Nautilus.desktop inode/directory
-    xdg-settings set default-web-browser org.mozilla.firefox.desktop
-
-    touch "$HOME/.flatpak-setup-done"
-fi
-EOF
-
-RUN chmod +x /usr/bin/auto-setup-apps
 
 # 4. Permissions, Autostart, and Firefox Flatpak Alias
 RUN chmod +x /usr/bin/auto-setup-apps && \
