@@ -4,20 +4,22 @@ FROM quay.io/fedora/fedora-silverblue:43
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
 # 1. Install Host Tools 
-RUN rpm-ostree install \
-    htop \
-    btop \
-    nvtop \
-    tmux \
-    bat \
-    gnome-tweaks \
-    git \
-    nautilus-python \
-    fzf \
-    distrobox \
-    moby-engine \
-    docker-compose && \
+RUN rpm-ostree remove firefox || true && \
+    rpm-ostree install \
+        htop \
+        btop \
+        nvtop \
+        tmux \
+        bat \
+        gnome-tweaks \
+        git \
+        nautilus-python \
+        fzf \
+        distrobox \
+        moby-engine \
+        docker-compose && \
     rpm-ostree cleanup -m
+
 
 # 2. Setup Docker Group
 RUN groupadd -f docker
@@ -34,6 +36,7 @@ fi\n\
 if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo\n\
   flatpak install --user -y flathub \\\n\
+    org.mozilla.firefox \\\n\
     com.spotify.Client \\\n\
     app.zen_browser.zen \\\n\
     org.videolan.VLC \\\n\
@@ -46,7 +49,7 @@ if [ ! -f "$HOME/.flatpak-setup-done" ]; then\n\
   # Set defaults\n\
   xdg-mime default dev.zed.Zed.desktop text/plain\n\
   xdg-mime default org.gnome.Nautilus.desktop inode/directory\n\
-  xdg-settings set default-web-browser app.zen_browser.zen.desktop\n\
+  xdg-settings set default-web-browser org.mozilla.firefox.desktop
   mkdir -p "$HOME/.local/bin"\n\
   printf "#!/bin/bash\\nflatpak run dev.zed.Zed \\"\$@\\"" > "$HOME/.local/bin/zed"\n\
   chmod +x "$HOME/.local/bin/zed"\n\
@@ -63,7 +66,9 @@ RUN chmod +x /usr/bin/auto-setup-apps && \
 
 # 5. UI Cleanup & Aliases
 RUN sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || true && \
+    sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/firefox.desktop || true && \   # <-- ADD THIS (hide system Firefox)
     echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
     echo 'alias clean="flatpak uninstall --unused -y"' >> /etc/bashrc && \
-    echo 'alias cat="bat"' >> /etc/bashrc
+    echo 'alias cat="bat"' >> /etc/bashrc && \
+    echo 'alias firefox="flatpak run org.mozilla.firefox"' >> /etc/bashrc   # <-- ADD THIS (firefox CLI alias)
 
