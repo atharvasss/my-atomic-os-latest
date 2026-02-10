@@ -23,38 +23,48 @@ RUN dnf remove -y firefox || true && \
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
-RUN printf '%s\n' \
-'#!/bin/bash' \
-'' \
-'# --- Docker Group Check ---' \
-'if ! groups "$(whoami)" | grep -q "\bdocker\b"; then' \
-'    sudo usermod -aG docker "$(whoami)"' \
-'fi' \
-'' \
-'# --- Flatpak Apps Setup ---' \
-'if [ ! -f "$HOME/.flatpak-setup-done" ]; then' \
-'    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo' \
-'' \
-'    flatpak install --system -y --noninteractive flathub \' \
-'        org.mozilla.firefox \' \
-'        com.spotify.Client \' \
-'        app.zen_browser.zen \' \
-'        org.videolan.VLC \' \
-'        org.onlyoffice.desktopeditors \' \
-'        dev.zed.Zed \' \
-'        com.github.tchx84.Flatseal \' \
-'        com.mattjakeman.ExtensionManager \' \
-'        org.gnome.DejaDup \' \
-'        com.discordapp.Discord' \
-'' \
-'    xdg-mime default dev.zed.Zed.desktop text/plain' \
-'    xdg-mime default org.gnome.Nautilus.desktop inode/directory' \
-'    xdg-settings set default-web-browser org.mozilla.firefox.desktop' \
-'' \
-'    touch "$HOME/.flatpak-setup-done"' \
-'fi' \
-> /usr/bin/auto-setup-apps && chmod +x /usr/bin/auto-setup-apps
 
+# 3. Auto-install system Flatpaks on first login (Silverblue-safe)
+RUN install -Dm755 /dev/stdin /usr/bin/auto-setup-apps << 'EOF'
+#!/bin/bash
+set -e
+
+# Run only once per user
+MARKER="$HOME/.flatpak-setup-done"
+[ -f "$MARKER" ] && exit 0
+
+# Ensure Flatpak exists
+command -v flatpak >/dev/null 2>&1 || exit 1
+
+# Ask for sudo once (required for --system installs)
+sudo -v || exit 1
+
+# Add Flathub system-wide
+sudo flatpak remote-add --if-not-exists \
+    flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# Install ALL required Flatpak applications system-wide
+sudo flatpak install -y --system flathub \
+    org.mozilla.firefox \        # Firefox
+    com.spotify.Client \         # Spotify
+    app.zen_browser.zen \        # Zen Browser
+    org.videolan.VLC \           # VLC Media Player
+    org.onlyoffice.desktopeditors \ # ONLYOFFICE
+    dev.zed.Zed \                # Zed editor
+    com.github.tchx84.Flatseal \ # Flatseal
+    com.mattjakeman.ExtensionManager \ # Extension Manager
+    org.gnome.DejaDup \          # Déjà Dup
+    com.discordapp.Discord       # Discord
+
+# Set user defaults
+xdg-mime default dev.zed.Zed.desktop text/plain || true
+xdg-mime default org.gnome.Nautilus.desktop inode/directory || true
+xdg-settings set default-web-browser org.mozilla.firefox.desktop || true
+
+# Cleanup unused runtimes
+sudo flatpak uninstall --unused -y
+
+touch "$MARKER"' > /usr/bin/auto-setup-apps && chmod +x /usr/bin/auto-setup-apps
 
 # 4. Setup autostart and aliases safely (check if files exist before sed)
 RUN mkdir -p /etc/xdg/autostart && \
