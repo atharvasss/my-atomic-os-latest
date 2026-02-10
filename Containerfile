@@ -33,6 +33,9 @@ RUN printf '%s\n' '#!/bin/bash' \
     '' \
     '# --- Flatpak Apps Setup ---' \
     'if [ ! -f "$HOME/.flatpak-setup-done" ]; then' \
+    '    # Remove system Firefox to use Flatpak version only' \
+    '    sudo dnf remove -y firefox || true' \
+    '' \
     '    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo' \
     '    flatpak install --system -y --noninteractive flathub \' \
     '        org.mozilla.firefox \' \
