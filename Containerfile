@@ -4,7 +4,9 @@ FROM quay.io/fedora/fedora-silverblue:43
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
 # 1. Install Host Tools (clean install, avoid firefox from repos)
-RUN dnf remove -y firefox || true && \
+# FIX: clean dnf cache before removing/installing to avoid metadata write errors
+RUN dnf clean all && \
+    dnf remove -y firefox || true && \
     dnf install -y \
         htop \
         btop \
@@ -20,6 +22,7 @@ RUN dnf remove -y firefox || true && \
         docker-compose && \
     dnf clean all
 
+
 # 2. Setup Docker Group
 RUN groupadd -f docker
 
@@ -30,11 +33,6 @@ RUN printf '%s\n' '#!/bin/bash' \
     'if ! groups "$(whoami)" | grep -q "\bdocker\b"; then' \
     '    sudo usermod -aG docker "$(whoami)"' \
     'fi' \
-    '' \
-    '# --- Flatpak Apps Setup ---' \
-    'if [ ! -f "$HOME/.flatpak-setup-done" ]; then' \
-    '    # Remove system Firefox to use Flatpak version only' \
-    '    sudo dnf remove -y firefox || true' \
     '' \
     '    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo' \
     '    flatpak install --system -y --noninteractive flathub \' \
