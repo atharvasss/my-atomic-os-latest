@@ -13,6 +13,7 @@ RUN dnf clean all && \
         nvtop \
         tmux \
         bat \
+        fastfetch \
         gnome-tweaks \
         git \
         nautilus-python \
