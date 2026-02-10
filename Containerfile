@@ -46,7 +46,7 @@ RUN printf '%s\n' '#!/bin/bash' \
     '        com.mattjakeman.ExtensionManager \' \
     '        org.gnome.DejaDup \' \
     '        com.discordapp.Discord' \
-    '    xdg-mime default dev.zed.Zed.desktop text/plain' \
+    '    xdg-mime default gedit.desktop text/plain' \
     '    xdg-mime default org.gnome.Nautilus.desktop inode/directory' \
     '    xdg-settings set default-web-browser org.mozilla.firefox.desktop' \
     '    touch "$HOME/.flatpak-setup-done"' \
