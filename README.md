@@ -145,9 +145,7 @@ Open:
 
 **Steam → Settings → Compatibility**
 
-* ✅ Enable **Steam Play for supported titles**
-* ✅ Enable **Steam Play for all other titles**
-* Select the latest **Proton** version
+* ✅ Set Default **Compatibility tool → Latest Proton (like Proton 9.x or Proton Experimental)**
 
 ---
 
