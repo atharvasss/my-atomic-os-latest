@@ -71,34 +71,37 @@ FROM quay.io/fedora/fedora-silverblue:43
 * Configures Docker
 * Runs a **one-time Flatpak automation script** on first login
 
+---
 
-## 🎮 Steam Setup (Flatpak)
+# 🎮 Steam Setup (Flatpak)
 
 > ⚠️ **Manual configuration required inside Steam**
-> You must enable **Steam Play for all titles** and **Shader Pre-Caching**.
+> You must enable **Steam Play for all titles** and **Shader Pre-Caching** after installation.
 
 ---
 
-### 1️⃣ Enable Flathub
+## 1️⃣ Enable Flathub
 
 ```bash
-flatpak remote-add --if-not-exists flathub \
-https://flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 ```
 
 ---
 
-### 2️⃣ Install Steam (Flatpak Only)
+## 2️⃣ Install Steam (Flatpak)
 
 ```bash
 flatpak install -y flathub com.valvesoftware.Steam
 ```
 
+> ✅ Proton and Steam Linux Runtime are downloaded automatically by Steam.
+> Manual installation is **not required** in normal setups.
+
 ---
 
-### 3️⃣ Install Steam Runtimes & Proton
+## 3️⃣ (Optional) Fix Missing Runtime / Steamworks Errors
 
-Fixes Steamworks SDK / SteamClient errors.
+Only run this if Steam reports missing runtime or compatibility tool errors:
 
 ```bash
 flatpak install -y flathub \
@@ -108,36 +111,55 @@ com.valvesoftware.Steam.CompatibilityTool.Proton
 
 ---
 
-### 4️⃣ Grant Required Permissions
+## 4️⃣ (Optional) Grant Additional Permissions
+
+Steam works out of the box for most users.
+
+If you experience controller, drive access, or GPU issues, apply:
 
 ```bash
 flatpak override --user \
---filesystem=home \
 --filesystem=xdg-data/Steam \
---device=all \
---share=network \
 com.valvesoftware.Steam
 ```
 
+> ⚠️ Avoid `--device=all` and full home access unless troubleshooting specific hardware issues.
+
 ---
 
-### 5️⃣ Launch Steam
+## 5️⃣ Launch Steam
 
 ```bash
 flatpak run com.valvesoftware.Steam
 ```
 
-Let Steam fully update before continuing.
+Allow Steam to fully update before continuing.
 
 ---
 
-### 6️⃣ Configure Steam (Inside App) ⚙️
+# ⚙️ Post-Install Configuration (Inside Steam)
 
-1. **Settings → Compatibility**
-   Enable **Steam Play for all titles**
-2. **Settings → Shader Pre-Caching**
-   Enable
-3. **Restart Steam**
+Open:
+
+**Steam → Settings → Compatibility**
+
+* ✅ Enable **Steam Play for supported titles**
+* ✅ Enable **Steam Play for all other titles**
+* Select latest **Proton** version
+
+Then:
+
+**Steam → Settings → Shader Pre-Caching**
+
+* ✅ Enable Shader Pre-Caching
+
+Restart Steam after applying changes.
+
+---
+
+# ✅ Done
+
+Steam is now ready for native and Proton gaming.
 
 ---
 
