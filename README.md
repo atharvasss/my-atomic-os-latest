@@ -73,10 +73,10 @@ FROM quay.io/fedora/fedora-silverblue:43
 
 ---
 
-# 🎮 Steam Setup (Flatpak)
+# 🎮 Steam Setup (Flatpak) – Fedora Atomic Silverblue
 
 > ⚠️ **Manual configuration required inside Steam**
-> You must enable **Steam Play for all titles** and **Shader Pre-Caching** after installation.
+> You must enable **Steam Play for all titles** and configure **Shader Cache settings** after installation.
 
 ---
 
@@ -99,7 +99,7 @@ flatpak install -y flathub com.valvesoftware.Steam
 
 ---
 
-## 3️⃣ (Optional) Fix Missing Runtime / Steamworks Errors
+## 3️⃣ (Optional) Fix Missing Runtime / Compatibility Tool Errors
 
 Only run this if Steam reports missing runtime or compatibility tool errors:
 
@@ -139,27 +139,47 @@ Allow Steam to fully update before continuing.
 
 # ⚙️ Post-Install Configuration (Inside Steam)
 
+## 🔹 Enable Proton (Steam Play)
+
 Open:
 
 **Steam → Settings → Compatibility**
 
 * ✅ Enable **Steam Play for supported titles**
 * ✅ Enable **Steam Play for all other titles**
-* Select latest **Proton** version
+* Select the latest **Proton** version
 
-Then:
+---
 
-**Steam → Settings → Shader Pre-Caching**
+## 🔹 Enable Shader Pre-Caching (New Steam UI Location)
 
-* ✅ Enable Shader Pre-Caching
+Open:
 
-Restart Steam after applying changes.
+**Steam → Settings → Downloads**
+
+Scroll down to **Shader Cache**
+
+* ✅ Enable **Shader Pre-Caching**
+* ✅ Allow background processing of Vulkan shaders
+
+> 💡 Recommended for Fedora Silverblue (especially with AMD/Intel GPUs) to reduce in-game stutter.
+
+---
+
+## 🔄 Restart Steam
+
+Restart Steam after applying the changes.
 
 ---
 
 # ✅ Done
 
-Steam is now ready for native and Proton gaming.
+Steam is now fully configured for:
+
+* Native Linux gaming
+* Proton gaming
+* Vulkan shader pre-caching
+* Fedora Atomic Silverblue (Flatpak environment)
 
 ---
 
