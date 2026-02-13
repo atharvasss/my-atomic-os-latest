@@ -3,11 +3,10 @@ FROM quay.io/fedora/fedora-silverblue:43
 # 0. Disable broken Fedora 43 updates-archive repo
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
-# 1. Install Host Tools (clean install, avoid firefox from repos)
-# FIX: clean dnf cache before removing/installing to avoid metadata write errors
-RUN dnf clean all && \
-    dnf remove -y firefox || true && \
-    dnf install -y \
+# 1. Install Host Tools (Atomic Layering)
+# We use 'override remove' because Firefox is part of the base image 'base commit'
+RUN rpm-ostree override remove firefox firefox-langpacks && \
+    rpm-ostree install \
         htop \
         btop \
         nvtop \
@@ -21,7 +20,8 @@ RUN dnf clean all && \
         distrobox \
         moby-engine \
         docker-compose && \
-    dnf clean all
+    rpm-ostree cleanup -m && \
+    ostree container commit
 
 
 # 2. Setup Docker Group
@@ -69,10 +69,13 @@ RUN mkdir -p /etc/xdg/autostart && \
     # Add alias globally (bashrc)
     echo 'alias firefox="flatpak run org.mozilla.firefox"' >> /etc/bashrc
 
-# 5. UI Cleanup & Aliases (check file existence before sed)
-RUN [ -f /usr/share/applications/org.gnome.Console.desktop ] && sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/org.gnome.Console.desktop || true && \
-    [ -f /usr/share/applications/firefox.desktop ] && sed -i 's/NoDisplay=false/NoDisplay=true/g' /usr/share/applications/firefox.desktop || true && \
+# 5. UI Cleanup & Aliases
+# We hide the default console because you likely want to use a custom terminal
+RUN if [ -f /usr/share/applications/org.gnome.Console.desktop ]; then \
+        echo "NoDisplay=true" >> /usr/share/applications/org.gnome.Console.desktop; \
+    fi && \
     echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
     echo 'alias clean="flatpak uninstall --unused -y"' >> /etc/bashrc && \
     echo 'alias cat="bat"' >> /etc/bashrc && \
     echo 'alias firefox="flatpak run org.mozilla.firefox"' >> /etc/bashrc
+
