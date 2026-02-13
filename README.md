@@ -99,6 +99,7 @@ rpm-ostree install steam-devices
 ```
 
 > ✅ Proton and Steam Linux Runtime are downloaded automatically by Steam.
+> 
 > ⚠️ Reboot Required: You must restart your system for the steam-devices rules to allow controller/VR detection.
 
 ---
