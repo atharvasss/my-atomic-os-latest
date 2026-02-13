@@ -35,7 +35,14 @@ RUN printf '%s\n' '#!/bin/bash' \
     '    sudo usermod -aG docker "$(whoami)"' \
     'fi' \
     '' \
-    '    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo' \
+    '# --- Flatpak Fix & Install ---' \
+    'if [ ! -f "$HOME/.flatpak-setup-done" ]; then' \
+    '    # Use direct DL link to avoid GPG signature errors' \
+    '    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo' \
+    '    ' \
+    '    # Repair metadata before installing to fix any "BAD signature" cache' \
+    '    sudo flatpak repair --system' \
+    '    ' \
     '    flatpak install --system -y --noninteractive flathub \' \
     '        org.mozilla.firefox \' \
     '        com.spotify.Client \' \
