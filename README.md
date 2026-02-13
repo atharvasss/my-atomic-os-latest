@@ -89,13 +89,13 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 ---
 
 ## 2️⃣ Install Steam (Flatpak)
+Bash
 
-```bash
-flatpak install -y flathub com.valvesoftware.Steam
-```
+flatpak install -y flathub com.valvesoftware.Steam && \
+rpm-ostree install steam-devices
 
-> ✅ Proton and Steam Linux Runtime are downloaded automatically by Steam.
-> Manual installation is **not required** in normal setups.
+    ✅ Proton and Steam Linux Runtime are downloaded automatically by Steam.
+    ⚠️ Reboot Required: You must restart your system for the steam-devices rules to allow controller/VR detection.
 
 ---
 
