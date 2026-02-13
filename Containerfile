@@ -41,9 +41,9 @@ RUN printf '%s\n' '#!/bin/bash' \
     '    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo' \
     '    ' \
     '    # Repair metadata before installing to fix any "BAD signature" cache' \
-    '    sudo flatpak repair --system' \
+    '    flatpak repair --system' \
     '    ' \
-    '    flatpak install --system -y --noninteractive flathub \' \
+    '    flatpak install --user -y --noninteractive flathub \' \
     '        org.mozilla.firefox \' \
     '        com.spotify.Client \' \
     '        app.zen_browser.zen \' \
