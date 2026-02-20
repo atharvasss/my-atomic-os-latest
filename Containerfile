@@ -7,7 +7,8 @@ RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.rep
 RUN rpm-ostree override remove firefox firefox-langpacks && \
     rpm-ostree install \
         gnome-tweaks distrobox \
-        moby-engine docker-compose && \
+        moby-engine docker-compose \
+        rofi && \
     # Fix: Enable Docker daemon at the system level during build
     systemctl enable docker.service && \
     rpm-ostree cleanup -m && \
