@@ -8,7 +8,7 @@ RUN rpm-ostree override remove firefox firefox-langpacks && \
     rpm-ostree install \
         gnome-tweaks distrobox \
         moby-engine docker-compose \
-        rofi && \
+        fuzzel && \
     # Fix: Enable Docker daemon at the system level during build
     systemctl enable docker.service && \
     rpm-ostree cleanup -m && \
