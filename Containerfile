@@ -27,7 +27,7 @@ RUN printf '%s\n' '#!/bin/bash' \
     '    # 2. Flatpak Setup (System-wide for better integration)' \
     '    flatpak remote-add --if-not-exists flathub https://dl.flathub.org' \
     '    flatpak install -y flathub \
-            org.mozilla.firefox com.spotify.Client app.zen_browser.zen \
+            org.mozilla.firefox app.zen_browser.zen \
             org.videolan.VLC org.onlyoffice.desktopeditors dev.zed.Zed \
             com.github.tchx84.Flatseal com.mattjakeman.ExtensionManager \
             org.gnome.DejaDup com.discordapp.Discord' \
