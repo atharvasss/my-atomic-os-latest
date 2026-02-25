@@ -27,7 +27,7 @@ RUN printf '%s\n' '#!/bin/bash' \
     '    # 2. Flatpak Setup (System-wide for better integration)' \
     '    flatpak remote-add --if-not-exists flathub https://dl.flathub.org' \
     '    flatpak install -y flathub \
-            org.mozilla.firefox app.zen_browser.zen \
+            app.zen_browser.zen \
             org.videolan.VLC org.onlyoffice.desktopeditors dev.zed.Zed \
             com.github.tchx84.Flatseal com.mattjakeman.ExtensionManager \
             org.gnome.DejaDup com.discordapp.Discord' \
@@ -47,4 +47,4 @@ RUN mkdir -p /etc/xdg/autostart && \
 
 # 5. Global Aliases
 RUN echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
-    echo 'alias firefox="flatpak run org.mozilla.firefox"' >> /etc/bashrc
+    echo 'alias zen="flatpak run app.zen_browser.zen"' >> /etc/bashrc
