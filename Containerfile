@@ -33,7 +33,7 @@ RUN printf '%s\n' '#!/bin/bash' \
             org.gnome.DejaDup com.discordapp.Discord' \
     '    ' \
     '    # 3. Defaults & Distrobox' \
-    '    xdg-settings set default-web-browser org.mozilla.firefox.desktop' \
+    '    xdg-settings set default-web-browser app.zen_browser.zen.desktop' \
     '    distrobox create -n dev -i fedora:43 --yes' \
     '    ' \
     '    touch "$HOME/.setup-done"' \
