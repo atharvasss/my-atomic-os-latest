@@ -40,7 +40,7 @@ done
 
 # 1. Flatpak remote
 flatpak remote-add --if-not-exists --user flathub \
-    https://dl.flathub.org/repo/flathub.flatpakrepo
+    https://dl.flathub.org
 
 # 2. Install Flatpak apps
 flatpak install -y --noninteractive --user flathub \
@@ -59,14 +59,16 @@ xdg-settings set default-web-browser app.zen_browser.zen.desktop || true
 # 4. Create dev Distrobox container
 distrobox create -n dev -i fedora:43 --yes || true
 
-# 5. Enable Podman User Socket (Crucial for Docker tool compatibility)
+# 5. Enable Podman User Socket
 systemctl --user enable --now podman.socket || true
 
 touch "$HOME/.setup-done"
 notify-send "Setup Complete" "Podman is ready with Docker compatibility."
 EOF
 
+# Ensure the file is executable
 RUN chmod +x /usr/bin/auto-setup
+
 
 # 4. Autostart Config
 RUN mkdir -p /etc/xdg/autostart && \
