@@ -22,6 +22,8 @@ RUN echo 'export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock' >> /etc
     echo 'alias zen="flatpak run app.zen_browser.zen"' >> /etc/bashrc
 
 # 3. Create the Automation Script
+
+# STEP 6/24: Create the Automation Script
 RUN cat > /usr/bin/auto-setup << 'EOF'
 #!/bin/bash
 set -euo pipefail
@@ -66,7 +68,7 @@ touch "$HOME/.setup-done"
 notify-send "Setup Complete" "Podman is ready with Docker compatibility."
 EOF
 
-# Ensure the file is executable
+# STEP 7/24: Make it executable
 RUN chmod +x /usr/bin/auto-setup
 
 
