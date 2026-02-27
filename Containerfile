@@ -7,7 +7,7 @@ RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.rep
 RUN rpm-ostree override remove firefox firefox-langpacks && \
     ostree container commit
 
-# Step B: Install host packages (Swapped Docker for Podman-Docker)
+# Step B: Install host packages
 RUN rpm-ostree install \
         gnome-tweaks \
         distrobox \
@@ -15,16 +15,16 @@ RUN rpm-ostree install \
         podman-compose && \
     ostree container commit
 
-# 2. Setup environment for Docker tool compatibility
-# This points all "Docker" tools to the Podman user socket automatically
-RUN echo 'export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock' >> /etc/bashrc && \
-    echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
-    echo 'alias zen="flatpak run app.zen_browser.zen"' >> /etc/bashrc
+# 2. Setup environment for Docker tool compatibility & Aliases
+# CHANGED: We now target /etc/profile.d/ which is the proper way to set global environment variables 
+# and aliases on Fedora. This avoids messy /etc/bashrc edits.
+RUN printf 'export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock\n' > /etc/profile.d/docker-compat.sh && \
+    printf 'alias z="flatpak run dev.zed.Zed ."\n' >> /etc/profile.d/docker-compat.sh && \
+    printf 'alias zen="flatpak run app.zen_browser.zen"\n' >> /etc/profile.d/docker-compat.sh
 
 # 3. Create the Automation Script
-
-# STEP 6/24: Create the Automation Script
-RUN cat > /usr/bin/auto-setup << 'EOF'
+# FIXED: The heredoc syntax below now correctly escapes variables so they don't break the build
+COPY <<-'EOF' /usr/bin/auto-setup
 #!/bin/bash
 set -euo pipefail
 
@@ -41,8 +41,7 @@ for i in $(seq 1 30); do
 done
 
 # 1. Flatpak remote
-flatpak remote-add --if-not-exists --user flathub \
-    https://dl.flathub.org
+flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org
 
 # 2. Install Flatpak apps
 flatpak install -y --noninteractive --user flathub \
@@ -68,15 +67,12 @@ touch "$HOME/.setup-done"
 notify-send "Setup Complete" "Podman is ready with Docker compatibility."
 EOF
 
-# STEP 7/24: Make it executable
 RUN chmod +x /usr/bin/auto-setup
-
 
 # 4. Autostart Config
 RUN mkdir -p /etc/xdg/autostart && \
     printf '[Desktop Entry]\nType=Application\nName=First Run Setup\nExec=/usr/bin/auto-setup\nNoDisplay=true\nTerminal=false\nX-GNOME-Autostart-enabled=true\n' \
     > /etc/xdg/autostart/first-run.desktop
 
-# 5. Global Aliases
-RUN echo 'alias z="flatpak run dev.zed.Zed ."' >> /etc/bashrc && \
-    echo 'alias zen="flatpak run app.zen_browser.zen"' >> /etc/bashrc
+# 5. Global Aliases (REMOVED)
+# This section was a duplicate of Section 2 and is now handled by /etc/profile.d/
