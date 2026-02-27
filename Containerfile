@@ -21,12 +21,12 @@ RUN groupadd -f docker
 RUN printf '%s\n' '#!/bin/bash' \
     '# Run once setup' \
     'if [ ! -f "$HOME/.setup-done" ]; then' \
-    '    # 1. Docker Group (Run once, requires logout/reboot to apply)' \
+    '    # 1. Docker Group' \
     '    sudo usermod -aG docker "$USER"' \
     '    ' \
-    '    # 2. Flatpak Setup (System-wide for better integration)' \
-    '    flatpak remote-add --if-not-exists flathub https://dl.flathub.org' \
-    '    flatpak install -y flathub \
+    '    # 2. Flatpak Setup (Added --noninteractive to prevent hanging)' \
+    '    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo' \
+    '    flatpak install -y --noninteractive flathub \
             app.zen_browser.zen \
             org.videolan.VLC org.onlyoffice.desktopeditors dev.zed.Zed \
             com.github.tchx84.Flatseal com.mattjakeman.ExtensionManager \
