@@ -21,61 +21,44 @@ RUN printf 'export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock\n' > /
     printf 'alias z="flatpak run dev.zed.Zed ."\n' >> /etc/profile.d/docker-compat.sh && \
     printf 'alias zen="flatpak run app.zen_browser.zen"\n' >> /etc/profile.d/docker-compat.sh
 
-# 3. Create the Automation Script (Improved Connectivity & Retry Logic)
-RUN cat > /usr/bin/auto-setup << 'EOF'
-#!/bin/bash
-set -euo pipefail
+# 3. Create the Automation Script
+# We use backslashes to ensure the builder treats this as ONE single RUN command
+RUN printf '#!/bin/bash\n\
+set -euo pipefail\n\
+\n\
+[ -f "$HOME/.setup-done" ] && exit 0\n\
+\n\
+echo "Waiting for D-Bus session..."\n\
+for i in $(seq 1 30); do\n\
+    dbus-send --session --dest=org.freedesktop.DBus \\\n\
+              --type=method_call --print-reply \\\n\
+              /org/freedesktop/DBus org.freedesktop.DBus.ListNames \\\n\
+              >/dev/null 2>&1 && break\n\
+    sleep 2\n\
+done\n\
+\n\
+flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org\n\
+\n\
+flatpak install -y --noninteractive --user flathub \\\n\
+    app.zen_browser.zen \\\n\
+    org.videolan.VLC \\\n\
+    org.onlyoffice.desktopeditors \\\n\
+    dev.zed.Zed \\\n\
+    com.github.tchx84.Flatseal \\\n\
+    com.mattjakeman.ExtensionManager \\\n\
+    org.gnome.DejaDup \\\n\
+    com.discordapp.Discord || true\n\
+\n\
+xdg-settings set default-web-browser app.zen_browser.zen.desktop || true\n\
+\n\
+distrobox create -n dev -i fedora:43 --yes || true\n\
+\n\
+systemctl --user enable --now podman.socket || true\n\
+\n\
+touch "$HOME/.setup-done"\n\
+notify-send "Setup Complete" "Podman is ready with Docker compatibility."\n' > /usr/bin/auto-setup && \
+chmod +x /usr/bin/auto-setup
 
-# Exit if setup already done
-[ -f "$HOME/.setup-done" ] && exit 0
-
-# A. Wait for D-Bus session to be ready
-echo "Waiting for D-Bus session..."
-for i in $(seq 1 30); do
-    dbus-send --session --dest=org.freedesktop.DBus \
-              --type=method_call --print-reply \
-              /org/freedesktop/DBus org.freedesktop.DBus.ListNames \
-              >/dev/null 2>&1 && break
-    sleep 2
-done
-
-# B. NEW: Wait for Internet Connection (Avoids race condition)
-echo "Checking for internet connection..."
-until ping -c 1 8.8.8.8 &>/dev/null; do
-    echo "Waiting for network..."
-    sleep 5
-done
-
-# C. Setup Flatpak
-flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org
-
-# D. NEW: Install Flatpak apps with Retry Logic
-echo "Installing Flatpaks..."
-until flatpak install -y --noninteractive --user flathub \
-    app.zen_browser.zen \
-    org.videolan.VLC \
-    org.onlyoffice.desktopeditors \
-    dev.zed.Zed \
-    com.github.tchx84.Flatseal \
-    com.mattjakeman.ExtensionManager \
-    org.gnome.DejaDup \
-    com.discordapp.Discord; do
-    echo "Flatpak install failed, retrying in 10 seconds..."
-    sleep 10
-done
-
-# E. Final System Configs
-xdg-settings set default-web-browser app.zen_browser.zen.desktop || true
-distrobox create -n dev -i fedora:43 --yes || true
-systemctl --user enable --now podman.socket || true
-
-# Mark as done and notify
-touch "$HOME/.setup-done"
-notify-send "Setup Complete" "Your system is ready with Docker compatibility."
-EOF
-
-# Ensure script is executable
-RUN chmod +x /usr/bin/auto-setup
 
 # 4. Autostart Config
 RUN mkdir -p /etc/xdg/autostart && \
