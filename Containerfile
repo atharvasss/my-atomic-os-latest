@@ -38,7 +38,6 @@ flatpak install --user -y flathub \\\n\
     org.gnome.DejaDup \\\n\
     com.discordapp.Discord\n\
 \n\
-distrobox create -n dev -i fedora:43 --yes || true\n\
 systemctl --user enable --now podman.socket || true\n\
 xdg-settings set default-web-browser app.zen_browser.zen.desktop || true\n\
 touch \"$HOME/.setup-done\"\n' \
