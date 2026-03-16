@@ -1,15 +1,13 @@
 FROM quay.io/fedora/fedora-silverblue:43
 
 # 1. Handle Repositories 
-# Disabling archives and forcing a metadata refresh for Rawhide stability
-RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true && \
-    rpm-ostree refresh-md
+# We remove the 'refresh-md' because it causes the "not booted via libostree" error.
+RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
 # 2. Atomic Package Management
-# Separating remove and install into distinct commands with safety guards
-RUN rpm-ostree override remove firefox firefox-langpacks || true
-
-RUN rpm-ostree install \
+# We remove Firefox and install tools in one go to keep it container-friendly.
+RUN rpm-ostree override remove firefox firefox-langpacks || true && \
+    rpm-ostree install \
         gnome-tweaks \
         distrobox \
         podman-docker \
