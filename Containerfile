@@ -33,40 +33,41 @@ RUN printf '%s\n' \
 ############################################
 RUN install -d /usr/libexec
 
+
 ############################################
 # 5. First Boot Setup Script
 ############################################
-RUN cat <<'EOF' > /usr/libexec/first-run-setup
-#!/usr/bin/env bash
-set -euo pipefail
+RUN printf '%s\n' \
+'#!/usr/bin/env bash' \
+'set -euo pipefail' \
+'' \
+'[ -f "$HOME/.setup-done" ] && exit 0' \
+'' \
+'# Wait for internet' \
+'until curl -s --head https://www.google.com | grep "200" > /dev/null; do' \
+'  sleep 5' \
+'done' \
+'' \
+'# Setup Flatpak repo' \
+'flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo' \
+'' \
+'# Install applications' \
+'flatpak install --user -y flathub \' \
+'  app.zen_browser.zen \' \
+'  org.videolan.VLC \' \
+'  org.onlyoffice.desktopeditors \' \
+'  dev.zed.Zed \' \
+'  com.github.tchx84.Flatseal \' \
+'  com.mattjakeman.ExtensionManager \' \
+'  org.gnome.DejaDup \' \
+'  com.discordapp.Discord' \
+'' \
+'touch "$HOME/.setup-done"' \
+'' \
+'notify-send "Setup Complete" "Your environment is ready."' \
+> /usr/libexec/first-run-setup && \
+chmod +x /usr/libexec/first-run-setup
 
-[ -f "$HOME/.setup-done" ] && exit 0
-
-# Wait for internet
-until curl -s --head https://www.google.com | grep "200" > /dev/null; do
-  sleep 5
-done
-
-# Setup Flatpak
-flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-
-# Install applications
-flatpak install --user -y flathub \
-  app.zen_browser.zen \
-  org.videolan.VLC \
-  org.onlyoffice.desktopeditors \
-  dev.zed.Zed \
-  com.github.tchx84.Flatseal \
-  com.mattjakeman.ExtensionManager \
-  org.gnome.DejaDup \
-  com.discordapp.Discord
-
-touch "$HOME/.setup-done"
-
-notify-send "Setup Complete" "Your environment is ready."
-EOF
-
-RUN chmod +x /usr/libexec/first-run-setup
 
 ############################################
 # 6. Desktop Autostart
