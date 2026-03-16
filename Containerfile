@@ -68,16 +68,15 @@ RUN printf '%s\n' \
 > /usr/libexec/first-run-setup && \
 chmod +x /usr/libexec/first-run-setup
 
-
 ############################################
 # 6. Desktop Autostart
 ############################################
 RUN mkdir -p /etc/xdg/autostart && \
-cat <<'EOF' > /etc/xdg/autostart/first-run.desktop
-[Desktop Entry]
-Type=Application
-Name=First Run Setup
-Exec=/usr/libexec/first-run-setup
-Terminal=false
-X-GNOME-Autostart-enabled=true
-EOF
+printf '%s\n' \
+'[Desktop Entry]' \
+'Type=Application' \
+'Name=First Run Setup' \
+'Exec=/usr/libexec/first-run-setup' \
+'Terminal=false' \
+'X-GNOME-Autostart-enabled=true' \
+> /etc/xdg/autostart/first-run.desktop
