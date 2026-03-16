@@ -21,11 +21,12 @@ RUN rpm-ostree override remove firefox firefox-langpacks || true && \
 ############################################
 # 3. Global Environment Configuration
 ############################################
-RUN cat <<'EOF' > /etc/profile.d/devops-env.sh
-alias z="flatpak run dev.zed.Zed ."
-alias zen="flatpak run app.zen_browser.zen"
-alias pc="podman compose"
-EOF
+RUN printf '%s\n' \
+'alias z="flatpak run dev.zed.Zed ."' \
+'alias zen="flatpak run app.zen_browser.zen"' \
+'alias pc="podman compose"' \
+> /etc/profile.d/devops-env.sh
+
 
 ############################################
 # 4. System Utilities
