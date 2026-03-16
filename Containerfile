@@ -1,13 +1,15 @@
 FROM quay.io/fedora/fedora-silverblue:43
 
 # 1. Handle Repositories 
-# We use --enablerepo= updates-testing if needed, but disabling broken archives is smart.
-RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
+# Disabling archives and forcing a metadata refresh for Rawhide stability
+RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true && \
+    rpm-ostree refresh-md
 
 # 2. Atomic Package Management
-# Separating remove and install slightly can prevent metadata lock errors.
-RUN rpm-ostree override remove firefox firefox-langpacks || true && \
-    rpm-ostree install \
+# Separating remove and install into distinct commands with safety guards
+RUN rpm-ostree override remove firefox firefox-langpacks || true
+
+RUN rpm-ostree install \
         gnome-tweaks \
         distrobox \
         podman-docker \
@@ -17,7 +19,6 @@ RUN rpm-ostree override remove firefox firefox-langpacks || true && \
     ostree container commit
 
 # 3. Setup Global Environment & Aliases
-# Using a single heredoc for better readability and fewer layers
 COPY <<EOF /etc/profile.d/custom-settings.sh
 export DOCKER_HOST=unix://\$XDG_RUNTIME_DIR/podman/podman.sock
 alias z="flatpak run dev.zed.Zed ."
@@ -25,7 +26,6 @@ alias zen="flatpak run app.zen_browser.zen"
 EOF
 
 # 4. Background Automation Script
-# I fixed the escaping of variables like $HOME so they don't expand during build time
 RUN mkdir -p /usr/libexec && \
     printf '#!/usr/bin/env bash\n\
 set -euo pipefail\n\
