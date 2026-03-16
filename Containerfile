@@ -1,16 +1,14 @@
 FROM quay.io/fedora/fedora-silverblue:43
 
-# 1. Handle Repositories 
-# We remove the 'refresh-md' because it causes the "not booted via libostree" error.
+# 1. Handle Repositories
 RUN sed -i 's/^enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-archive.repo || true
 
 # 2. Atomic Package Management
-# We remove Firefox and install tools in one go to keep it container-friendly.
 RUN rpm-ostree override remove firefox firefox-langpacks || true && \
     rpm-ostree install \
         gnome-tweaks \
         distrobox \
-        podman-docker \
+        podman \
         podman-compose \
         libnotify && \
     rpm-ostree cleanup -m && \
@@ -18,9 +16,9 @@ RUN rpm-ostree override remove firefox firefox-langpacks || true && \
 
 # 3. Setup Global Environment & Aliases
 COPY <<EOF /etc/profile.d/custom-settings.sh
-export DOCKER_HOST=unix://\$XDG_RUNTIME_DIR/podman/podman.sock
 alias z="flatpak run dev.zed.Zed ."
 alias zen="flatpak run app.zen_browser.zen"
+alias pc="podman compose"
 EOF
 
 # 4. Background Automation Script
