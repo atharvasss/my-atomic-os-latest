@@ -77,6 +77,6 @@ printf '%s\n' \
 'Type=Application' \
 'Name=First Run Setup' \
 'Exec=/usr/libexec/first-run-setup' \
-'Terminal=false' \
+'Terminal=true' \
 'X-GNOME-Autostart-enabled=true' \
 > /etc/xdg/autostart/first-run.desktop
