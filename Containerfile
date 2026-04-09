@@ -54,7 +54,6 @@ RUN printf '%s\n' \
 '# Install applications' \
 'flatpak install --user -y flathub \' \
 '  app.zen_browser.zen \' \
-'  org.videolan.VLC \' \
 '  org.onlyoffice.desktopeditors \' \
 '  dev.zed.Zed \' \
 '  com.github.tchx84.Flatseal \' \
